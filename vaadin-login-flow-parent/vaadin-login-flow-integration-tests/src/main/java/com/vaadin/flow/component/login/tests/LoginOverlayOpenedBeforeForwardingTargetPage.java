@@ -13,23 +13,16 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.flow.component.confirmdialog.tests;
+package com.vaadin.flow.component.login.tests;
 
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.Route;
 
-@Route("vaadin-confirm-dialog/overlay-remains-in-dom-after-detach-view")
-public class OverlayForwardingSourcePage extends ConfirmDialog
-        implements BeforeEnterObserver {
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        event.forwardTo(OverlayForwardingTargetPage.class);
-    }
-
-    public OverlayForwardingSourcePage() {
-        setOpened(true);
+@Route("vaadin-login/login-overlay-opened-before-forwarding-target")
+public class LoginOverlayOpenedBeforeForwardingTargetPage extends Div {
+    public LoginOverlayOpenedBeforeForwardingTargetPage() {
+        setId("forwarded-view");
+        add(new Text("Forwarded"));
     }
 }

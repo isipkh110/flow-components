@@ -21,7 +21,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.internal.StateTree;
-import com.vaadin.flow.router.NavigationTrigger;
 import com.vaadin.flow.shared.Registration;
 
 /**
@@ -36,8 +35,9 @@ public class OverlayAutoAddController<C extends Component>
     private final C component;
     private final SerializableSupplier<Boolean> isModalSupplier;
 
+    private boolean skipOnNavigation;
     private boolean autoAdded;
-    private Registration afterProgrammaticNavigationListenerRegistration;
+    private Registration beforeLeaveRegistration;
 
     public OverlayAutoAddController(C component) {
         this(component, () -> false);
@@ -57,6 +57,17 @@ public class OverlayAutoAddController<C extends Component>
         });
     }
 
+    /**
+     * Sets whether to skip auto-adding when the UI navigates to a new view
+     * before the component is opened.
+     *
+     * @param skipOnNavigation
+     *            whether to skip auto-adding on navigation
+     */
+    public void setSkipOnNavigation(boolean skipOnNavigation) {
+        this.skipOnNavigation = skipOnNavigation;
+    }
+
     private void handleOpen() {
         UI ui = getUI();
         StateTree.ExecutionRegistration addToUiRegistration = ui
@@ -67,21 +78,20 @@ public class OverlayAutoAddController<C extends Component>
                                 isModalSupplier.get());
                         autoAdded = true;
                     }
-                    if (afterProgrammaticNavigationListenerRegistration != null) {
-                        afterProgrammaticNavigationListenerRegistration
-                                .remove();
+                    if (beforeLeaveRegistration != null) {
+                        beforeLeaveRegistration.remove();
+                        beforeLeaveRegistration = null;
                     }
                 });
-        if (ui.getSession() != null) {
-            afterProgrammaticNavigationListenerRegistration = ui
-                    .addAfterNavigationListener(event -> {
-                        if (event.getLocationChangeEvent()
-                                .getTrigger() == NavigationTrigger.PROGRAMMATIC) {
-                            addToUiRegistration.remove();
-                            afterProgrammaticNavigationListenerRegistration
-                                    .remove();
-                        }
-                    });
+
+        if (skipOnNavigation && ui.getSession() != null) {
+            // Cancel auto-adding if the current view is navigated away from
+            // before the component is added to the UI.
+            beforeLeaveRegistration = ui.addBeforeLeaveListener(event -> {
+                addToUiRegistration.remove();
+                beforeLeaveRegistration.remove();
+                beforeLeaveRegistration = null;
+            });
         }
     }
 

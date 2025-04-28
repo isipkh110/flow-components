@@ -13,23 +13,24 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.flow.component.dialog.tests;
+package com.vaadin.flow.component.login.tests;
 
-import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
-@Route("vaadin-dialog/overlay-remains-in-dom-after-detach-view")
-public class OverlayForwardingSourcePage extends Dialog
+@Route("vaadin-login/login-overlay-opened-before-forwarding-source")
+public class LoginOverlayOpenedBeforeForwardingSourcePage extends Div
         implements BeforeEnterObserver {
+
+    public LoginOverlayOpenedBeforeForwardingSourcePage() {
+        new LoginOverlay().setOpened(true);
+    }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        event.forwardTo(OverlayForwardingTargetPage.class);
-    }
-
-    public OverlayForwardingSourcePage() {
-        setOpened(true);
+        event.forwardTo(LoginOverlayOpenedBeforeForwardingTargetPage.class);
     }
 }

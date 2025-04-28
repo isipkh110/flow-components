@@ -13,16 +13,18 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.flow.component.dialog.tests;
+package com.vaadin.flow.component.login.tests;
 
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.router.Route;
 
-@Route("vaadin-dialog/forwarding-target")
-public class OverlayForwardingTargetPage extends Div {
-    public OverlayForwardingTargetPage() {
+@Route("vaadin-login/login-overlay-opened-after-forwarding-target")
+public class LoginOverlayOpenedAfterForwardingTargetPage extends Div {
+    public LoginOverlayOpenedAfterForwardingTargetPage() {
         setId("forwarded-view");
         add(new Text("Forwarded"));
+        new LoginOverlay().setOpened(true);
     }
 }

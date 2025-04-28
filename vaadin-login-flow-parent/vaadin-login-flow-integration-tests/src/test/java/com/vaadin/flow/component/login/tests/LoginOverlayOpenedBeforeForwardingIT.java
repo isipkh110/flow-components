@@ -15,21 +15,26 @@
  */
 package com.vaadin.flow.component.login.tests;
 
-import com.vaadin.flow.component.login.LoginOverlay;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.Route;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.openqa.selenium.By;
 
-@Route("vaadin-login/overlay-remains-in-dom-after-detach-view")
-public class OverlayForwardingSourcePage extends LoginOverlay
-        implements BeforeEnterObserver {
+import com.vaadin.flow.testutil.TestPath;
+import com.vaadin.tests.AbstractComponentIT;
 
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        event.forwardTo(OverlayForwardingTargetPage.class);
+@TestPath("vaadin-login/login-overlay-opened-before-forwarding-source")
+public class LoginOverlayOpenedBeforeForwardingIT extends AbstractComponentIT {
+
+    @Before
+    public void init() {
+        open();
     }
 
-    public OverlayForwardingSourcePage() {
-        setOpened(true);
+    @Test
+    public void openOverlay_forward_noOverlayPresent() {
+        waitForElementPresent(By.id("forwarded-view"));
+        Assert.assertFalse(
+                isElementPresent(By.tagName("vaadin-login-overlay")));
     }
 }
