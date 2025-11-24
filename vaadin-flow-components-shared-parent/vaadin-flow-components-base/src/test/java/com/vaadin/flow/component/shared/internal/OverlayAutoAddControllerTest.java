@@ -15,8 +15,6 @@
  */
 package com.vaadin.flow.component.shared.internal;
 
-import javax.annotation.concurrent.NotThreadSafe;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,12 +22,20 @@ import org.mockito.Mockito;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
+import com.vaadin.flow.component.ModalityMode;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.dom.DomEvent;
+import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.dom.ElementUtil;
 import com.vaadin.flow.function.SerializableSupplier;
+import com.vaadin.flow.internal.JacksonUtils;
+import com.vaadin.flow.internal.nodefeature.ElementListenerMap;
 import com.vaadin.flow.router.BeforeLeaveEvent;
 import com.vaadin.flow.router.internal.BeforeLeaveHandler;
 import com.vaadin.flow.server.VaadinSession;
+
+import net.jcip.annotations.NotThreadSafe;
 
 @NotThreadSafe
 public class OverlayAutoAddControllerTest {
@@ -134,19 +140,70 @@ public class OverlayAutoAddControllerTest {
     }
 
     @Test
-    public void close_withoutParent_autoRemoved() {
+    public void autoAdded_closeWithoutEvent_notAutoRemoved() {
         TestComponent component = new TestComponent();
 
         component.setOpened(true);
         fakeClientResponse();
 
+        // Just setting the property should not yet remove the component,
+        // instead it should wait for the closed event
         component.setOpened(false);
+
+        Assert.assertEquals(ui.getElement(),
+                component.getElement().getParent());
+    }
+
+    @Test
+    public void autoAdded_closeWithEventOnly_notAutoRemoved() {
+        TestComponent component = new TestComponent();
+
+        component.setOpened(true);
+        fakeClientResponse();
+
+        // Just receiving the closed event should not remove the component,
+        // as the component also needs to be closed on the server side
+        fireClosedEvent(component);
+
+        Assert.assertEquals(ui.getElement(),
+                component.getElement().getParent());
+    }
+
+    @Test
+    public void autoAdded_close_autoRemoved() {
+        TestComponent component = new TestComponent();
+
+        component.setOpened(true);
+        fakeClientResponse();
+
+        // Setting the property and receiving a closed event should remove the
+        // component
+        component.setOpened(false);
+        fireClosedEvent(component);
 
         Assert.assertNull(component.getElement().getParent());
     }
 
     @Test
-    public void close_withParent_notAutoRemoved() {
+    public void autoAdded_inert_close_autoRemoved() {
+        TestComponent component = new TestComponent();
+
+        component.setOpened(true);
+        fakeClientResponse();
+
+        // Mark the component as inert
+        ElementUtil.setInert(component.getElement(), true);
+        fakeClientResponse();
+        Assert.assertTrue(component.getElement().getNode().isInert());
+
+        // Inert components should still receive the closed event
+        component.setOpened(false);
+        fireClosedEvent(component);
+        Assert.assertNull(component.getElement().getParent());
+    }
+
+    @Test
+    public void notAutoAdded_close_notAutoRemoved() {
         ParentComponent parent = new ParentComponent();
         TestComponent component = new TestComponent();
         parent.add(component);
@@ -155,19 +212,24 @@ public class OverlayAutoAddControllerTest {
         fakeClientResponse();
 
         component.setOpened(false);
+        fireClosedEvent(component);
 
         Assert.assertEquals(parent.getElement(),
                 component.getElement().getParent());
     }
 
     @Test
-    public void close_reopenBeforeClientResponse_autoRemovedAndAutoAdded() {
+    public void autoAdded_close_reopenBeforeClientResponse_autoRemovedAndAutoAdded() {
         TestComponent component = new TestComponent();
 
         component.setOpened(true);
         fakeClientResponse();
 
         component.setOpened(false);
+        fireClosedEvent(component);
+
+        Assert.assertNull(component.getElement().getParent());
+
         component.setOpened(true);
         fakeClientResponse();
 
@@ -183,35 +245,187 @@ public class OverlayAutoAddControllerTest {
         fakeClientResponse();
 
         Mockito.verify(ui, Mockito.times(1)).setChildComponentModal(component,
-                false);
+                ModalityMode.MODELESS);
     }
 
     @Test
-    public void open_withModalSupplierReturningTrue_isModal() {
-        TestComponent component = new TestComponent(() -> true);
+    public void open_withModalSupplierReturningStrict_isModal() {
+        TestComponent component = new TestComponent(() -> ModalityMode.STRICT);
 
         component.setOpened(true);
         fakeClientResponse();
 
         Mockito.verify(ui, Mockito.times(1)).setChildComponentModal(component,
-                true);
+                ModalityMode.STRICT);
     }
 
     @Test
-    public void open_withModalSupplierReturningFalse_notModal() {
-        TestComponent component = new TestComponent(() -> false);
+    public void open_withModalSupplierReturningModeless_notModal() {
+        TestComponent component = new TestComponent(
+                () -> ModalityMode.MODELESS);
 
         component.setOpened(true);
         fakeClientResponse();
 
         Mockito.verify(ui, Mockito.times(1)).setChildComponentModal(component,
-                false);
+                ModalityMode.MODELESS);
+    }
+
+    @Test
+    public void add_autoAdded() {
+        TestComponent component = new TestComponent();
+        component.controller.add();
+
+        Assert.assertEquals(ui.getElement(),
+                component.getElement().getParent());
+    }
+
+    @Test
+    public void add_doesNotOpen() {
+        TestComponent component = new TestComponent();
+        component.controller.add();
+
+        Assert.assertFalse(component.getElement().getProperty("opened", false));
+    }
+
+    @Test
+    public void add_withParent_notAutoAdded() {
+        ParentComponent parent = new ParentComponent();
+        TestComponent component = new TestComponent();
+        parent.add(component);
+        component.controller.add();
+
+        Assert.assertEquals(parent.getElement(),
+                component.getElement().getParent());
+    }
+
+    @Test
+    public void add_close_autoRemoved() {
+        TestComponent component = new TestComponent();
+        component.controller.add();
+
+        component.setOpened(true);
+        fakeClientResponse();
+        component.setOpened(false);
+        fireClosedEvent(component);
+
+        Assert.assertNull(component.getElement().getParent());
+    }
+
+    @Test
+    public void autoAdded_remove_forceRemovesComponent() {
+        TestComponent component = new TestComponent();
+
+        component.setOpened(true);
+        fakeClientResponse();
+
+        Assert.assertEquals(ui.getElement(),
+                component.getElement().getParent());
+
+        component.controller.remove();
+
+        Assert.assertNull(component.getElement().getParent());
+    }
+
+    @Test
+    public void notAutoAdded_remove_doesNothing() {
+        ParentComponent parent = new ParentComponent();
+        TestComponent component = new TestComponent();
+        parent.add(component);
+
+        component.setOpened(true);
+        fakeClientResponse();
+
+        Assert.assertEquals(parent.getElement(),
+                component.getElement().getParent());
+
+        component.controller.remove();
+
+        Assert.assertEquals(parent.getElement(),
+                component.getElement().getParent());
+    }
+
+    @Test
+    public void open_insideModalComponent_dataSlotIgnoreAttributeSet() {
+        // Open a modal component first
+        TestComponent modal = new TestComponent(() -> ModalityMode.STRICT);
+        modal.setOpened(true);
+        fakeClientResponse();
+
+        // Open another component inside the modal
+        TestComponent innerComponent = new TestComponent();
+        innerComponent.setOpened(true);
+        fakeClientResponse();
+
+        // Verify the inner component has data-slot-ignore attribute
+        Assert.assertTrue(
+                innerComponent.getElement().hasAttribute("data-slot-ignore"));
+    }
+
+    @Test
+    public void open_notInsideModalComponent_dataSlotIgnoreAttributeNotSet() {
+        // Open a component without a modal parent
+        TestComponent component = new TestComponent();
+        component.setOpened(true);
+        fakeClientResponse();
+
+        // Verify the component does not have data-slot-ignore attribute
+        Assert.assertFalse(
+                component.getElement().hasAttribute("data-slot-ignore"));
+    }
+
+    @Test
+    public void open_insideModalComponent_close_dataSlotIgnoreAttributeRemoved() {
+        // Open a modal component first
+        TestComponent modal = new TestComponent(() -> ModalityMode.STRICT);
+        modal.setOpened(true);
+        fakeClientResponse();
+
+        // Open another component inside the modal
+        TestComponent innerComponent = new TestComponent();
+        innerComponent.setOpened(true);
+        fakeClientResponse();
+
+        // Verify the attribute is set
+        Assert.assertTrue(
+                innerComponent.getElement().hasAttribute("data-slot-ignore"));
+
+        // Close the component
+        innerComponent.setOpened(false);
+        fireClosedEvent(innerComponent);
+
+        // Verify the attribute is removed
+        Assert.assertFalse(
+                innerComponent.getElement().hasAttribute("data-slot-ignore"));
+    }
+
+    @Test
+    public void add_insideModalComponent_dataSlotIgnoreAttributeSet() {
+        // Open a modal component first
+        TestComponent modal = new TestComponent(() -> ModalityMode.STRICT);
+        modal.setOpened(true);
+        fakeClientResponse();
+
+        // Add another component using controller.add()
+        TestComponent innerComponent = new TestComponent();
+        innerComponent.controller.add();
+
+        // Verify the inner component has data-slot-ignore attribute
+        Assert.assertTrue(
+                innerComponent.getElement().hasAttribute("data-slot-ignore"));
     }
 
     private void fakeClientResponse() {
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
         ui.getInternals().getStateTree().collectChanges(ignore -> {
         });
+    }
+
+    private void fireClosedEvent(Component component) {
+        Element element = component.getElement();
+        element.getNode().getFeature(ElementListenerMap.class)
+                .fireEvent(new DomEvent(element, "closed",
+                        JacksonUtils.createObjectNode()));
     }
 
     @Tag("test")
@@ -222,8 +436,10 @@ public class OverlayAutoAddControllerTest {
             controller = new OverlayAutoAddController<>(this);
         }
 
-        public TestComponent(SerializableSupplier<Boolean> isModalSupplier) {
-            controller = new OverlayAutoAddController<>(this, isModalSupplier);
+        public TestComponent(
+                SerializableSupplier<ModalityMode> modalityModeSupplier) {
+            controller = new OverlayAutoAddController<>(this,
+                    modalityModeSupplier);
         }
 
         public void setOpened(boolean opened) {

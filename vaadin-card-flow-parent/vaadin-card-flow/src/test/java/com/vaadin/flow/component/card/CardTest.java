@@ -44,7 +44,6 @@ public class CardTest {
         var ui = new UI();
         UI.setCurrent(ui);
         card = new Card();
-        card.setFeatureFlagEnabled();
         ui.add(card);
     }
 
@@ -138,6 +137,41 @@ public class CardTest {
     @Test
     public void setSubtitle_slotAttributeSet() {
         setSlotContent_slotAttributeIsSet(Card::setSubtitle, "subtitle");
+    }
+
+    @Test
+    public void setStringSubtitle_subtitleIsSet() {
+        var subtitle = "Some Subtitle";
+        card.setSubtitle(subtitle);
+        Assert.assertNotNull(card.getSubtitle());
+        Assert.assertTrue(card.getSubtitle() instanceof Span);
+        Assert.assertEquals(subtitle, ((Span) card.getSubtitle()).getText());
+    }
+
+    @Test
+    public void setStringSubtitle_setNullStringSubtitle_subtitleCleared() {
+        card.setSubtitle("Some Subtitle");
+        card.setSubtitle((String) null);
+        Assert.assertNull(card.getSubtitle());
+    }
+
+    @Test
+    public void setStringSubtitle_setComponentSubtitle_stringSubtitleIsReplaced() {
+        card.setSubtitle("Some Subtitle");
+        var newSubtitle = new Div("Other Subtitle");
+        card.setSubtitle(newSubtitle);
+        Assert.assertEquals(newSubtitle, card.getSubtitle());
+    }
+
+    @Test
+    public void setComponentSubtitle_setStringSubtitle_componentSubtitleIsReplaced() {
+        var componentSubtitle = new Div("Component Subtitle");
+        card.setSubtitle(componentSubtitle);
+        var stringSubtitle = "String Subtitle";
+        card.setSubtitle(stringSubtitle);
+        Assert.assertTrue(card.getSubtitle() instanceof Span);
+        Assert.assertEquals(stringSubtitle,
+                ((Span) card.getSubtitle()).getText());
     }
 
     @Test
@@ -373,11 +407,6 @@ public class CardTest {
         Assert.assertTrue(firstComponent.isPresent());
         Assert.assertEquals(component, firstComponent.get());
         Assert.assertTrue(component.isAttached());
-    }
-
-    @Test
-    public void cardThemeVariantsEmptyByDefault() {
-        Assert.assertTrue(card.getThemeNames().isEmpty());
     }
 
     @Test

@@ -16,9 +16,12 @@
 package com.vaadin.flow.component.shared.internal;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ModalityMode;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.dom.DisabledUpdateMode;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.internal.StateTree;
 import com.vaadin.flow.shared.Registration;
@@ -33,28 +36,74 @@ import com.vaadin.flow.shared.Registration;
 public class OverlayAutoAddController<C extends Component>
         implements Serializable {
     private final C component;
-    private final SerializableSupplier<Boolean> isModalSupplier;
+    private final SerializableSupplier<ModalityMode> modalityModeSupplier;
 
     private boolean skipOnNavigation;
     private boolean autoAdded;
     private Registration beforeLeaveRegistration;
 
     public OverlayAutoAddController(C component) {
-        this(component, () -> false);
+        this(component, () -> ModalityMode.MODELESS);
     }
 
     public OverlayAutoAddController(C component,
-            SerializableSupplier<Boolean> isModalSupplier) {
+            SerializableSupplier<ModalityMode> modalityModeSupplier) {
         this.component = component;
-        this.isModalSupplier = isModalSupplier;
+        this.modalityModeSupplier = Objects.requireNonNull(modalityModeSupplier,
+                "modalityModeSupplier must not be null");
 
+        // Automatically add the component to the UI when it is opened.
         component.getElement().addPropertyChangeListener("opened", event -> {
             if (isOpened()) {
                 handleOpen();
-            } else {
-                handleClose();
             }
         });
+
+        // Automatically remove the component from the UI after the overlay's
+        // closing animation has finished. This way auto-removal works by first
+        // setting `opened` on the client-side to `false` and then waiting for
+        // the `closed` event from the client-side.
+        // The event needs to be allowed for inert components so that closing
+        // from the server still works. This requires double-checking that the
+        // component is actually in a closed state on the server.
+        // Also allow the event on disabled components, as LoginOverlay for
+        // example disables itself on the login event.
+        component.getElement().addEventListener("closed", event -> {
+            if (!isOpened()) {
+                handleClose();
+            }
+        }).allowInert().setDisabledUpdateMode(DisabledUpdateMode.ALWAYS);
+    }
+
+    /**
+     * Adds the component to the UI if it is not already attached, regardless of
+     * the current opened state of the component. Allows components with custom
+     * opening logic, such as ContextMenu, to add themselves to the UI and reuse
+     * the automatic removal logic when the component is closed.
+     */
+    public void add() {
+        if (!isAttached()) {
+            UI ui = getUI();
+            // Mark component as slot-ignored if being added inside another
+            // modal. This prevents web component SlotController from treating
+            // auto-added overlays as custom content that should hide default
+            // slot content
+            if (ui.hasModalComponent()) {
+                component.getElement().setAttribute("data-slot-ignore", "");
+            }
+            ui.addToModalComponent(component);
+            ui.setChildComponentModal(component, modalityModeSupplier.get());
+            autoAdded = true;
+        }
+    }
+
+    /**
+     * Force remove the component from the UI in case it was auto-added. Can be
+     * used by components with custom closing logic. For example, Notification
+     * removes itself from the UI whenever it is detached.
+     */
+    public void remove() {
+        handleClose();
     }
 
     /**
@@ -72,11 +121,8 @@ public class OverlayAutoAddController<C extends Component>
         UI ui = getUI();
         StateTree.ExecutionRegistration addToUiRegistration = ui
                 .beforeClientResponse(ui, context -> {
-                    if (isOpened() && !isAttached()) {
-                        ui.addToModalComponent(component);
-                        ui.setChildComponentModal(component,
-                                isModalSupplier.get());
-                        autoAdded = true;
+                    if (isOpened()) {
+                        add();
                     }
                     if (beforeLeaveRegistration != null) {
                         beforeLeaveRegistration.remove();
@@ -98,20 +144,13 @@ public class OverlayAutoAddController<C extends Component>
     private void handleClose() {
         if (autoAdded) {
             autoAdded = false;
+            component.getElement().removeAttribute("data-slot-ignore");
             component.getElement().removeFromParent();
         }
     }
 
     private UI getUI() {
-        UI ui = UI.getCurrent();
-        if (ui == null) {
-            throw new IllegalStateException("UI instance is not available. "
-                    + "It means that you are calling this method "
-                    + "out of a normal workflow where it's always implicitly set. "
-                    + "That may happen if you call the method from the custom thread without "
-                    + "'UI::access' or from tests without proper initialization.");
-        }
-        return ui;
+        return UI.getCurrentOrThrow();
     }
 
     private boolean isOpened() {

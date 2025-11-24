@@ -18,6 +18,7 @@ package com.vaadin.flow.component.sidenav;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasStyle;
@@ -25,8 +26,9 @@ import com.vaadin.flow.component.Synchronize;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.component.shared.HasThemeVariant;
 import com.vaadin.flow.dom.Element;
-import com.vaadin.flow.internal.JsonSerializer;
+import com.vaadin.flow.internal.JacksonUtils;
 
 /**
  * A side navigation menu with support for hierarchical and flat menus.
@@ -38,10 +40,10 @@ import com.vaadin.flow.internal.JsonSerializer;
  * @author Vaadin Ltd
  */
 @Tag("vaadin-side-nav")
-@NpmPackage(value = "@vaadin/side-nav", version = "24.8.0-alpha15")
+@NpmPackage(value = "@vaadin/side-nav", version = "25.0.0-beta5")
 @JsModule("@vaadin/side-nav/src/vaadin-side-nav.js")
-public class SideNav extends Component
-        implements HasSideNavItems, HasSize, HasStyle {
+public class SideNav extends Component implements HasSideNavItems, HasSize,
+        HasStyle, HasThemeVariant<SideNavVariant> {
 
     private Element labelElement;
 
@@ -151,6 +153,30 @@ public class SideNav extends Component
     }
 
     /**
+     * Gets whether to expand parent items of the nested matching item after
+     * initial rendering or navigation. By default, all the parent items are
+     * expanded.
+     *
+     * @return true if parent items for the item should be expanded
+     */
+    public boolean isAutoExpand() {
+        return !getElement().getProperty("noAutoExpand", false);
+    }
+
+    /**
+     * Sets whether to expand parent items of the nested matching item after
+     * initial rendering or navigation. By default, all the parent items are
+     * expanded.
+     *
+     * @param autoExpand
+     *            true if parent items for the item should be expanded, false
+     *            otherwise
+     */
+    public void setAutoExpand(boolean autoExpand) {
+        getElement().setProperty("noAutoExpand", !autoExpand);
+    }
+
+    /**
      * Gets the internationalization object previously set for this component.
      * <p>
      * NOTE: Updating the instance that is returned from this method will not
@@ -174,12 +200,13 @@ public class SideNav extends Component
         Objects.requireNonNull(i18n,
                 "The i18N properties object should not be null");
         this.i18n = i18n;
-        getElement().setPropertyJson("i18n", JsonSerializer.toJson(i18n));
+        getElement().setPropertyJson("i18n", JacksonUtils.beanToJson(i18n));
     }
 
     /**
      * The internationalization properties for {@link SideNav}.
      */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class SideNavI18n implements Serializable {
         private String toggle;
 
