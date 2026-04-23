@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,9 +17,9 @@ package com.vaadin.flow.component.shared;
 
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.data.provider.DataChangeEvent;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -27,14 +27,14 @@ import com.vaadin.flow.data.provider.DataProvider;
 /**
  * Tests for {@link SelectionPreservationHandler}.
  */
-public class SelectionPreservationHandlerTest {
+class SelectionPreservationHandlerTest {
 
     private SelectionPreservationMode selectionPreservationMode;
 
     private SelectionPreservationHandler<String> selectionPreservationHandler;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         selectionPreservationHandler = new SelectionPreservationHandler<>(
                 SelectionPreservationMode.DISCARD) {
             @Override
@@ -56,15 +56,15 @@ public class SelectionPreservationHandlerTest {
     }
 
     @Test
-    public void runHandler_handlerUsesDefaultMode() {
+    void runHandler_handlerUsesDefaultMode() {
         selectionPreservationHandler.handleDataChange(
                 new DataChangeEvent<>(DataProvider.ofItems()));
-        Assert.assertEquals(SelectionPreservationMode.DISCARD,
+        Assertions.assertEquals(SelectionPreservationMode.DISCARD,
                 selectionPreservationMode);
     }
 
     @Test
-    public void updateMode_runHandler_handlerUsesCorrectMode() {
+    void updateMode_runHandler_handlerUsesCorrectMode() {
         List.of(SelectionPreservationMode.PRESERVE_ALL,
                 SelectionPreservationMode.PRESERVE_EXISTING)
                 .forEach(modeToSet -> {
@@ -72,13 +72,14 @@ public class SelectionPreservationHandlerTest {
                             .setSelectionPreservationMode(modeToSet);
                     selectionPreservationHandler.handleDataChange(
                             new DataChangeEvent<>(DataProvider.ofItems()));
-                    Assert.assertEquals(modeToSet, selectionPreservationMode);
+                    Assertions.assertEquals(modeToSet,
+                            selectionPreservationMode);
                 });
     }
 
     @Test
-    public void setModeNull_throwsNullPointerException() {
-        Assert.assertThrows(NullPointerException.class,
+    void setModeNull_throwsNullPointerException() {
+        Assertions.assertThrows(NullPointerException.class,
                 () -> selectionPreservationHandler
                         .setSelectionPreservationMode(null));
     }

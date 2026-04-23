@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,19 +15,19 @@
  */
 package com.vaadin.flow.component.grid.editor;
 
-import static org.mockito.Mockito.mock;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.tests.MockUIExtension;
 
-public class EditorBeanTest {
+class EditorBeanTest {
+    @RegisterExtension
+    final MockUIExtension ui = new MockUIExtension();
 
     public static class MutableBean {
         private String name;
@@ -56,26 +56,17 @@ public class EditorBeanTest {
         }
     }
 
-    public static class MockUI extends UI {
-
-        public MockUI() {
-            getInternals().setSession(mock(VaadinSession.class));
-        }
-    }
-
-    private MockUI ui;
     private TextField nameField;
 
-    @Before
-    public void init() {
-        ui = new MockUI();
+    @BeforeEach
+    void init() {
         nameField = new TextField();
     }
 
     @Test
-    public void createEditorWithMutableBean_editItem_binderBeanSet() {
+    void createEditorWithMutableBean_editItem_binderBeanSet() {
         Grid<MutableBean> grid = new Grid<>();
-        ui.getElement().appendChild(grid.getElement());
+        ui.add(grid);
 
         Binder<MutableBean> binder = new Binder<>(MutableBean.class);
         binder.forField(nameField).bind("name");
@@ -83,16 +74,16 @@ public class EditorBeanTest {
         MutableBeanEditor editor = new MutableBeanEditor(grid);
         editor.setBinder(binder);
         editor.editItem(new MutableBean("foo"));
-        fakeClientResponse();
+        ui.fakeClientCommunication();
 
-        Assert.assertNotNull(binder.getBean());
-        Assert.assertEquals(nameField.getValue(), "foo");
+        Assertions.assertNotNull(binder.getBean());
+        Assertions.assertEquals("foo", nameField.getValue());
     }
 
     @Test
-    public void createEditorWithMutableBean_setBuffered_editItem_binderBeanRead() {
+    void createEditorWithMutableBean_setBuffered_editItem_binderBeanRead() {
         Grid<MutableBean> grid = new Grid<>();
-        ui.getElement().appendChild(grid.getElement());
+        ui.add(grid);
 
         Binder<MutableBean> binder = new Binder<>(MutableBean.class);
         binder.forField(nameField).bind("name");
@@ -101,16 +92,16 @@ public class EditorBeanTest {
         editor.setBinder(binder);
         editor.setBuffered(true);
         editor.editItem(new MutableBean("foo"));
-        fakeClientResponse();
+        ui.fakeClientCommunication();
 
-        Assert.assertNull(binder.getBean());
-        Assert.assertEquals(nameField.getValue(), "foo");
+        Assertions.assertNull(binder.getBean());
+        Assertions.assertEquals("foo", nameField.getValue());
     }
 
     @Test
-    public void createEditorWithImmutableBean_editItem_binderBeanRead() {
+    void createEditorWithImmutableBean_editItem_binderBeanRead() {
         Grid<ImmutableBean> grid = new Grid<>();
-        ui.getElement().appendChild(grid.getElement());
+        ui.add(grid);
 
         Binder<ImmutableBean> binder = new Binder<>(ImmutableBean.class);
         binder.forField(nameField).bind("name");
@@ -118,15 +109,9 @@ public class EditorBeanTest {
         ImmutableBeanEditor editor = new ImmutableBeanEditor(grid);
         editor.setBinder(binder);
         editor.editItem(new ImmutableBean("foo"));
-        fakeClientResponse();
+        ui.fakeClientCommunication();
 
-        Assert.assertNull(binder.getBean());
-        Assert.assertEquals(nameField.getValue(), "foo");
-    }
-
-    private void fakeClientResponse() {
-        ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
-        ui.getInternals().getStateTree().collectChanges(ignore -> {
-        });
+        Assertions.assertNull(binder.getBean());
+        Assertions.assertEquals("foo", nameField.getValue());
     }
 }

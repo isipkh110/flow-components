@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -33,13 +33,13 @@ public class DetachReattachIT extends AbstractComponentIT {
         clickButton("valueA");
         clickButton("addGroup");
         clickButton("getValueTemplate");
-        Assert.assertEquals(valueBlock.getText(), "A");
+        Assert.assertEquals("A", valueBlock.getText());
 
         clickButton("removeGroup");
         clickButton("valueB");
         clickButton("addGroup");
         clickButton("getValueTemplate");
-        Assert.assertEquals(valueBlock.getText(), "B");
+        Assert.assertEquals("B", valueBlock.getText());
     }
 
     @Test

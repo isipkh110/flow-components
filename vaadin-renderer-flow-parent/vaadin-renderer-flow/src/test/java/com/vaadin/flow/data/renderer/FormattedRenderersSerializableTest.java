@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -24,12 +24,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class FormattedRenderersSerializableTest {
+class FormattedRenderersSerializableTest {
 
     @Test
-    public void numberRendererIsSerializable() throws IOException {
+    void numberRendererIsSerializable() throws IOException {
         NumberRenderer<?> renderer = new NumberRenderer<>(value -> 42);
         new ObjectOutputStream(new ByteArrayOutputStream())
                 .writeObject(renderer);
@@ -41,7 +41,7 @@ public class FormattedRenderersSerializableTest {
     }
 
     @Test
-    public void localDateTimeRendererIsSerializable() throws IOException {
+    void localDateTimeRendererIsSerializable() throws IOException {
         LocalDateTimeRenderer<?> renderer = new LocalDateTimeRenderer<>(
                 value -> LocalDateTime.now());
         new ObjectOutputStream(new ByteArrayOutputStream())
@@ -55,7 +55,7 @@ public class FormattedRenderersSerializableTest {
     }
 
     @Test
-    public void localDateRendererIsSerializable() throws IOException {
+    void localDateRendererIsSerializable() throws IOException {
         LocalDateRenderer<?> renderer = new LocalDateRenderer<>(
                 (v) -> LocalDate.now());
         new ObjectOutputStream(new ByteArrayOutputStream())

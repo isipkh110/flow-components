@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -30,8 +30,8 @@ public class ListBoxRetainValueIT extends AbstractComponentIT {
     public void listBoxRetainValueWhenRemovedAndAdded() {
         open();
         WebElement value = findElement(By.id("list-box-value"));
-        Assert.assertEquals(value.getText(), "2");
+        Assert.assertEquals("2", value.getText());
         findElement(By.id("add-button")).click();
-        Assert.assertEquals(value.getText(), "2");
+        Assert.assertEquals("2", value.getText());
     }
 }

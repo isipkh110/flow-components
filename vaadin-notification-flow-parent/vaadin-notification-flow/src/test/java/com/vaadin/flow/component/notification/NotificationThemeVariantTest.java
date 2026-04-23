@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,25 +15,25 @@
  */
 package com.vaadin.flow.component.notification;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class NotificationThemeVariantTest {
+class NotificationThemeVariantTest {
 
     private Notification notification = new Notification();
 
     @Test
-    public void addAndRemoveVariant_themeAttributeUpdated() {
+    void addAndRemoveVariant_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.addThemeVariants(NotificationVariant.ERROR);
         assertThemeAttribute("error");
-        notification.removeThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.removeThemeVariants(NotificationVariant.ERROR);
         assertThemeAttribute(null);
     }
 
     private void assertThemeAttribute(String expected) {
         String theme = notification.getElement().getAttribute("theme");
-        Assert.assertEquals("Unexpected theme attribute on notification",
-                expected, theme);
+        Assertions.assertEquals(expected, theme,
+                "Unexpected theme attribute on notification");
     }
 }

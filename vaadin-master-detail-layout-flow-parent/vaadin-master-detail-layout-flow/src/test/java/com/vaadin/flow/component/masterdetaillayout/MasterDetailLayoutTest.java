@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,11 +15,10 @@
  */
 package com.vaadin.flow.component.masterdetaillayout;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockedStatic;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
 import com.vaadin.experimental.FeatureFlags;
@@ -27,48 +26,45 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.server.VaadinContext;
-import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.tests.EnableFeatureFlagExtension;
+import com.vaadin.tests.MockUIExtension;
 
-public class MasterDetailLayoutTest {
-    private final UI ui = new UI();
+class MasterDetailLayoutTest {
+    @RegisterExtension
+    MockUIExtension ui = new MockUIExtension();
+    @RegisterExtension
+    EnableFeatureFlagExtension featureFlagExtension = new EnableFeatureFlagExtension(
+            FeatureFlags.MASTER_DETAIL_LAYOUT_COMPONENT);
+
     private final MasterDetailLayout layout = new MasterDetailLayout();
 
-    private final FeatureFlags mockFeatureFlags = Mockito
-            .mock(FeatureFlags.class);
-    private final MockedStatic<FeatureFlags> mockFeatureFlagsStatic = Mockito
-            .mockStatic(FeatureFlags.class);
-
-    @Before
-    public void setup() {
-        VaadinSession mockSession = Mockito.mock(VaadinSession.class);
-        VaadinService mockService = Mockito.mock(VaadinService.class);
-        VaadinContext mockContext = Mockito.mock(VaadinContext.class);
-
-        Mockito.when(mockSession.getService()).thenReturn(mockService);
-        Mockito.when(mockService.getContext()).thenReturn(mockContext);
-        mockFeatureFlagsStatic.when(() -> FeatureFlags.get(mockContext))
-                .thenReturn(mockFeatureFlags);
-
-        Mockito.when(mockFeatureFlags
-                .isEnabled(FeatureFlags.MASTER_DETAIL_LAYOUT_COMPONENT))
-                .thenReturn(true);
-
-        ui.getInternals().setSession(mockSession);
+    @BeforeEach
+    void setup() {
         ui.add(layout);
     }
 
-    @After
-    public void tearDown() {
-        mockFeatureFlagsStatic.close();
+    @Test
+    void constructorWithSizes() {
+        var customLayout = new MasterDetailLayout("400px", "200px");
+        ui.add(customLayout);
+
+        Assertions.assertEquals("400px", customLayout.getMasterSize());
+        Assertions.assertEquals("200px", customLayout.getDetailSize());
     }
 
     @Test
-    public void setMaster() {
+    void constructorWithSizesAndUnits() {
+        var customLayout = new MasterDetailLayout(30, Unit.EM, 15, Unit.EM);
+        ui.add(customLayout);
+
+        Assertions.assertEquals("30.0em", customLayout.getMasterSize());
+        Assertions.assertEquals("15.0em", customLayout.getDetailSize());
+    }
+
+    @Test
+    void setMaster() {
         var master = new Div();
         layout.setMaster(master);
 
@@ -76,15 +72,15 @@ public class MasterDetailLayoutTest {
     }
 
     @Test
-    public void getMaster() {
+    void getMaster() {
         var master = new Div();
         layout.setMaster(master);
 
-        Assert.assertEquals(master, layout.getMaster());
+        Assertions.assertEquals(master, layout.getMaster());
     }
 
     @Test
-    public void setMaster_replaceMaster() {
+    void setMaster_replaceMaster() {
         var master = new Div();
         layout.setMaster(master);
 
@@ -92,22 +88,24 @@ public class MasterDetailLayoutTest {
         layout.setMaster(newMaster);
 
         assertMasterContent(newMaster);
-        Assert.assertNull(master.getElement().getParent());
-        Assert.assertNull(master.getElement().getAttribute("slot"));
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void setMasterNull_throws() {
-        layout.setMaster(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void setMasterText_throws() {
-        layout.setMaster(new Text("master"));
+        Assertions.assertNull(master.getElement().getParent());
+        Assertions.assertNull(master.getElement().getAttribute("slot"));
     }
 
     @Test
-    public void setDetail() {
+    void setMasterNull_throws() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> layout.setMaster(null));
+    }
+
+    @Test
+    void setMasterText_throws() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> layout.setMaster(new Text("master")));
+    }
+
+    @Test
+    void setDetail() {
         var detail = new Div();
         layout.setDetail(detail);
 
@@ -116,15 +114,15 @@ public class MasterDetailLayoutTest {
     }
 
     @Test
-    public void getDetail() {
+    void getDetail() {
         var detail = new Div();
         layout.setDetail(detail);
 
-        Assert.assertEquals(detail, layout.getDetail());
+        Assertions.assertEquals(detail, layout.getDetail());
     }
 
     @Test
-    public void setDetail_replaceDetail() {
+    void setDetail_replaceDetail() {
         var detail = new Div();
         layout.setDetail(detail);
 
@@ -133,24 +131,24 @@ public class MasterDetailLayoutTest {
 
         assertDetailContent(newDetail);
         assertSetDetailCall(newDetail, true);
-        Assert.assertEquals(newDetail, layout.getDetail());
-        Assert.assertNull(detail.getElement().getParent());
+        Assertions.assertEquals(newDetail, layout.getDetail());
+        Assertions.assertNull(detail.getElement().getParent());
     }
 
     @Test
-    public void setDetail_removeDetail() {
+    void setDetail_removeDetail() {
         var detail = new Div();
         layout.setDetail(detail);
 
         layout.setDetail(null);
 
         assertSetDetailCall(null, true);
-        Assert.assertNull(layout.getDetail());
-        Assert.assertNull(detail.getElement().getParent());
+        Assertions.assertNull(layout.getDetail());
+        Assertions.assertNull(detail.getElement().getParent());
     }
 
     @Test
-    public void setDetail_detach_attach() {
+    void setDetail_detach_attach() {
         var detail = new Div();
         layout.setDetail(detail);
         assertSetDetailCall(detail, true);
@@ -162,7 +160,7 @@ public class MasterDetailLayoutTest {
     }
 
     @Test
-    public void setDetail_usesViewTransitionAfterFirstRoundtrip() {
+    void setDetail_usesViewTransitionAfterFirstRoundtrip() {
         // No transition if component is attached in first roundtrip
         var detail = new Div();
         layout.setDetail(detail);
@@ -179,23 +177,66 @@ public class MasterDetailLayoutTest {
         assertSetDetailCall(newDetail, true);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void setDetailText_throws() {
-        layout.setDetail(new Text("detail"));
+    @Test
+    void setDetailText_throws() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> layout.setDetail(new Text("detail")));
     }
 
     @Test
-    public void showRouterLayoutContent() {
+    void setDetailPlaceholder() {
+        var placeholder = new Div();
+        layout.setDetailPlaceholder(placeholder);
+
+        Assertions.assertEquals("detail-placeholder",
+                placeholder.getElement().getAttribute("slot"));
+        Assertions.assertEquals(layout.getElement(),
+                placeholder.getElement().getParent());
+    }
+
+    @Test
+    void getDetailPlaceholder() {
+        var placeholder = new Div();
+        layout.setDetailPlaceholder(placeholder);
+
+        Assertions.assertEquals(placeholder, layout.getDetailPlaceholder());
+    }
+
+    @Test
+    void setDetailPlaceholder_replacePlaceholder() {
+        var placeholder = new Div();
+        layout.setDetailPlaceholder(placeholder);
+
+        var newPlaceholder = new Div();
+        layout.setDetailPlaceholder(newPlaceholder);
+
+        Assertions.assertEquals(newPlaceholder, layout.getDetailPlaceholder());
+        Assertions.assertNull(placeholder.getElement().getParent());
+    }
+
+    @Test
+    void setDetailPlaceholderNull_removesPlaceholder() {
+        var placeholder = new Div();
+        layout.setDetailPlaceholder(placeholder);
+
+        layout.setDetailPlaceholder(null);
+
+        Assertions.assertNull(layout.getDetailPlaceholder());
+        Assertions.assertNull(placeholder.getElement().getParent());
+    }
+
+    @Test
+    void showRouterLayoutContent() {
         var detail = new Div();
         layout.showRouterLayoutContent(detail);
 
         assertDetailContent(detail);
         assertSetDetailCall(detail, true);
-        Assert.assertEquals(detail, layout.getDetail());
+        Assertions.assertEquals(detail, layout.getDetail());
     }
 
     @Test
-    public void updateRouterLayoutContent() {
+    void updateRouterLayoutContent() {
         var detail = new Div();
         layout.showRouterLayoutContent(detail);
 
@@ -205,166 +246,225 @@ public class MasterDetailLayoutTest {
 
         assertDetailContent(newDetail);
         assertSetDetailCall(newDetail, true);
-        Assert.assertEquals(newDetail, layout.getDetail());
-        Assert.assertNull(detail.getElement().getParent());
+        Assertions.assertEquals(newDetail, layout.getDetail());
+        Assertions.assertNull(detail.getElement().getParent());
 
         layout.removeRouterLayoutContent(newDetail);
 
         assertSetDetailCall(null, false);
-        Assert.assertNull(layout.getDetail());
-        Assert.assertNull(newDetail.getElement().getParent());
+        Assertions.assertNull(layout.getDetail());
+        Assertions.assertNull(newDetail.getElement().getParent());
     }
 
     @Test
-    public void setMasterSize_getMasterSize() {
+    void setMasterSize_getMasterSize() {
         String size = "300px";
         layout.setMasterSize(size);
-        Assert.assertEquals(size, layout.getMasterSize());
-        Assert.assertEquals(size,
+        Assertions.assertEquals(size, layout.getMasterSize());
+        Assertions.assertEquals(size,
                 layout.getElement().getProperty("masterSize"));
     }
 
     @Test
-    public void setMasterSizeWithUnit_getMasterSize() {
+    void setMasterSizeWithUnit_getMasterSize() {
         layout.setMasterSize(30, Unit.EM);
-        Assert.assertEquals("30.0em", layout.getMasterSize());
-        Assert.assertEquals("30.0em",
+        Assertions.assertEquals("30.0em", layout.getMasterSize());
+        Assertions.assertEquals("30.0em",
                 layout.getElement().getProperty("masterSize"));
     }
 
     @Test
-    public void setMasterMinSize_getMasterMinSize() {
-        String minSize = "200px";
-        layout.setMasterMinSize(minSize);
-        Assert.assertEquals(minSize, layout.getMasterMinSize());
-        Assert.assertEquals(minSize,
-                layout.getElement().getProperty("masterMinSize"));
+    void setMasterSizeWithExpand_getMasterSize_isExpandMaster() {
+        layout.setMasterSize("300px", true);
+        Assertions.assertEquals("300px", layout.getMasterSize());
+        Assertions.assertTrue(layout.isExpandMaster());
     }
 
     @Test
-    public void setMasterMinSizeWithUnit_getMasterMinSize() {
-        layout.setMasterMinSize(30, Unit.EM);
-        Assert.assertEquals("30.0em", layout.getMasterMinSize());
-        Assert.assertEquals("30.0em",
-                layout.getElement().getProperty("masterMinSize"));
+    void setMasterSizeWithUnitAndExpand_getMasterSize_isExpandMaster() {
+        layout.setMasterSize(30, Unit.EM, true);
+        Assertions.assertEquals("30.0em", layout.getMasterSize());
+        Assertions.assertTrue(layout.isExpandMaster());
     }
 
     @Test
-    public void setDetailSize_getDetailSize() {
+    void setDetailSize_getDetailSize() {
         String size = "400px";
         layout.setDetailSize(size);
-        Assert.assertEquals(size, layout.getDetailSize());
-        Assert.assertEquals(size,
+        Assertions.assertEquals(size, layout.getDetailSize());
+        Assertions.assertEquals(size,
                 layout.getElement().getProperty("detailSize"));
     }
 
     @Test
-    public void setDetailSizeWithUnit_getDetailSize() {
+    void setDetailSizeWithUnit_getDetailSize() {
         layout.setDetailSize(30, Unit.EM);
-        Assert.assertEquals("30.0em", layout.getDetailSize());
-        Assert.assertEquals("30.0em",
+        Assertions.assertEquals("30.0em", layout.getDetailSize());
+        Assertions.assertEquals("30.0em",
                 layout.getElement().getProperty("detailSize"));
     }
 
     @Test
-    public void setDetailMinSize_getDetailMinSize() {
-        String minSize = "250px";
-        layout.setDetailMinSize(minSize);
-        Assert.assertEquals(minSize, layout.getDetailMinSize());
-        Assert.assertEquals(minSize,
-                layout.getElement().getProperty("detailMinSize"));
+    void setDetailSizeWithExpand_getDetailSize_isExpandDetail() {
+        layout.setDetailSize("300px", true);
+        Assertions.assertEquals("300px", layout.getDetailSize());
+        Assertions.assertTrue(layout.isExpandDetail());
     }
 
     @Test
-    public void setDetailMinSizeWithUnit_getDetailMinSize() {
-        layout.setDetailMinSize(30, Unit.EM);
-        Assert.assertEquals("30.0em", layout.getDetailMinSize());
-        Assert.assertEquals("30.0em",
-                layout.getElement().getProperty("detailMinSize"));
+    void setDetailSizeWithUnitAndExpand_getDetailSize_isExpandDetail() {
+        layout.setDetailSize(30, Unit.EM, true);
+        Assertions.assertEquals("30.0em", layout.getDetailSize());
+        Assertions.assertTrue(layout.isExpandDetail());
     }
 
     @Test
-    public void setOrientation_getOrientation() {
-        Assert.assertEquals(MasterDetailLayout.Orientation.HORIZONTAL,
+    void setDetailSizeWithOverlaySize_getDetailSize_getOverlaySize() {
+        layout.setDetailSize("300px", "200px");
+        Assertions.assertEquals("300px", layout.getDetailSize());
+        Assertions.assertEquals("200px", layout.getOverlaySize());
+    }
+
+    @Test
+    void setDetailSizeWithUnitAndOverlaySize_getDetailSize_getOverlaySize() {
+        layout.setDetailSize(30, Unit.EM, 20, Unit.EM);
+        Assertions.assertEquals("30.0em", layout.getDetailSize());
+        Assertions.assertEquals("20.0em", layout.getOverlaySize());
+    }
+
+    @Test
+    void setDetailSizeWithExpandAndOverlaySize_getDetailSize_isExpandDetail_getOverlaySize() {
+        layout.setDetailSize("300px", true, "200px");
+        Assertions.assertEquals("300px", layout.getDetailSize());
+        Assertions.assertTrue(layout.isExpandDetail());
+        Assertions.assertEquals("200px", layout.getOverlaySize());
+    }
+
+    @Test
+    void setDetailSizeWithUnitExpandAndOverlaySize_getDetailSize_isExpandDetail_getOverlaySize() {
+        layout.setDetailSize(30, Unit.EM, true, 20, Unit.EM);
+        Assertions.assertEquals("30.0em", layout.getDetailSize());
+        Assertions.assertTrue(layout.isExpandDetail());
+        Assertions.assertEquals("20.0em", layout.getOverlaySize());
+    }
+
+    @Test
+    void setOverlaySize_getOverlaySize() {
+        String size = "500px";
+        layout.setOverlaySize(size);
+        Assertions.assertEquals(size, layout.getOverlaySize());
+        Assertions.assertEquals(size,
+                layout.getElement().getProperty("overlaySize"));
+    }
+
+    @Test
+    void setOverlaySize_resetToNull() {
+        layout.setOverlaySize("500px");
+        layout.setOverlaySize(null);
+        Assertions.assertNull(layout.getOverlaySize());
+    }
+
+    @Test
+    void setOverlaySizeWithUnit_getOverlaySize() {
+        layout.setOverlaySize(100, Unit.PERCENTAGE);
+        Assertions.assertEquals("100.0%", layout.getOverlaySize());
+        Assertions.assertEquals("100.0%",
+                layout.getElement().getProperty("overlaySize"));
+    }
+
+    @Test
+    void setOrientation_getOrientation() {
+        Assertions.assertEquals(MasterDetailLayout.Orientation.HORIZONTAL,
                 layout.getOrientation());
 
         layout.setOrientation(MasterDetailLayout.Orientation.VERTICAL);
 
-        Assert.assertEquals(MasterDetailLayout.Orientation.VERTICAL,
+        Assertions.assertEquals(MasterDetailLayout.Orientation.VERTICAL,
                 layout.getOrientation());
-        Assert.assertEquals("vertical",
+        Assertions.assertEquals("vertical",
                 layout.getElement().getProperty("orientation"));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void setOrientationNull_throws() {
-        layout.setOrientation(null);
+    @Test
+    void setOrientationNull_throws() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> layout.setOrientation(null));
     }
 
     @Test
-    public void setContainment_getContainment() {
-        Assert.assertEquals(MasterDetailLayout.Containment.LAYOUT,
-                layout.getContainment());
+    void setOverlayContainment_getOverlayContainment() {
+        Assertions.assertEquals(MasterDetailLayout.OverlayContainment.LAYOUT,
+                layout.getOverlayContainment());
 
-        layout.setContainment(MasterDetailLayout.Containment.VIEWPORT);
+        layout.setOverlayContainment(
+                MasterDetailLayout.OverlayContainment.PAGE);
 
-        Assert.assertEquals(MasterDetailLayout.Containment.VIEWPORT,
-                layout.getContainment());
-        Assert.assertEquals("viewport",
-                layout.getElement().getProperty("containment"));
+        Assertions.assertEquals(MasterDetailLayout.OverlayContainment.PAGE,
+                layout.getOverlayContainment());
+        Assertions.assertEquals("page",
+                layout.getElement().getProperty("overlayContainment"));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void setContainmentNull_throws() {
-        layout.setContainment(null);
+    @Test
+    void setOverlayContainmentNull_throws() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> layout.setOverlayContainment(null));
+    }
+
+    @Test
+    void setExpandMaster_isExpandMaster() {
+        Assertions.assertFalse(layout.isExpandMaster());
+        Assertions.assertFalse(
+                layout.getElement().getProperty("expandMaster", false));
+
+        layout.setExpandMaster(true);
+
+        Assertions.assertTrue(layout.isExpandMaster());
+        Assertions.assertTrue(
+                layout.getElement().getProperty("expandMaster", false));
+    }
+
+    @Test
+    void setExpandDetail_isExpandDetail() {
+        Assertions.assertFalse(layout.isExpandDetail());
+        Assertions.assertFalse(
+                layout.getElement().getProperty("expandDetail", false));
+
+        layout.setExpandDetail(true);
+
+        Assertions.assertTrue(layout.isExpandDetail());
+        Assertions.assertTrue(
+                layout.getElement().getProperty("expandDetail", false));
     }
 
     @Test
     public void setForceOverlay_isForceOverlay() {
-        Assert.assertFalse(layout.isForceOverlay());
-        Assert.assertFalse(
+        Assertions.assertFalse(layout.isForceOverlay());
+        Assertions.assertFalse(
                 layout.getElement().getProperty("forceOverlay", false));
 
         layout.setForceOverlay(true);
 
-        Assert.assertTrue(layout.isForceOverlay());
-        Assert.assertTrue(
+        Assertions.assertTrue(layout.isForceOverlay());
+        Assertions.assertTrue(
                 layout.getElement().getProperty("forceOverlay", false));
     }
 
     @Test
-    public void setAnimationEnabled_isAnimationEnabled() {
-        Assert.assertTrue(layout.isAnimationEnabled());
-        Assert.assertFalse(
+    void setAnimationEnabled_isAnimationEnabled() {
+        Assertions.assertTrue(layout.isAnimationEnabled());
+        Assertions.assertFalse(
                 layout.getElement().getProperty("noAnimation", false));
 
         layout.setAnimationEnabled(false);
 
-        Assert.assertFalse(layout.isAnimationEnabled());
-        Assert.assertTrue(
+        Assertions.assertFalse(layout.isAnimationEnabled());
+        Assertions.assertTrue(
                 layout.getElement().getProperty("noAnimation", false));
     }
 
     @Test
-    public void setOverlayMode_getOverlayMode() {
-        Assert.assertEquals(MasterDetailLayout.OverlayMode.DRAWER,
-                layout.getOverlayMode());
-
-        layout.setOverlayMode(MasterDetailLayout.OverlayMode.STACK);
-        Assert.assertEquals(MasterDetailLayout.OverlayMode.STACK,
-                layout.getOverlayMode());
-        Assert.assertTrue(
-                layout.getElement().getProperty("stackOverlay", false));
-
-        layout.setOverlayMode(MasterDetailLayout.OverlayMode.DRAWER);
-        Assert.assertEquals(MasterDetailLayout.OverlayMode.DRAWER,
-                layout.getOverlayMode());
-        Assert.assertFalse(
-                layout.getElement().getProperty("stackOverlay", false));
-    }
-
-    @Test
-    public void addBackdropClickListener_verifyListenerTriggered() {
+    void addBackdropClickListener_verifyListenerTriggered() {
         @SuppressWarnings("unchecked")
         ComponentEventListener<MasterDetailLayout.BackdropClickEvent> listener = Mockito
                 .mock(ComponentEventListener.class);
@@ -379,7 +479,7 @@ public class MasterDetailLayoutTest {
     }
 
     @Test
-    public void addDetailEscapePressListener_verifyListenerTriggered() {
+    void addDetailEscapePressListener_verifyListenerTriggered() {
         @SuppressWarnings("unchecked")
         ComponentEventListener<MasterDetailLayout.DetailEscapePressEvent> listener = Mockito
                 .mock(ComponentEventListener.class);
@@ -394,40 +494,35 @@ public class MasterDetailLayoutTest {
     }
 
     private void assertMasterContent(Component component) {
-        Assert.assertEquals("", component.getElement().getAttribute("slot"));
-        Assert.assertEquals(layout.getElement(),
+        Assertions.assertEquals("",
+                component.getElement().getAttribute("slot"));
+        Assertions.assertEquals(layout.getElement(),
                 component.getElement().getParent());
     }
 
     private void assertDetailContent(Component component) {
-        Assert.assertEquals(layout.getElement(),
+        Assertions.assertEquals(layout.getElement(),
                 component.getElement().getParent());
-        Assert.assertTrue(component.getElement().isVirtualChild());
+        Assertions.assertTrue(component.getElement().isVirtualChild());
     }
 
     private void assertSetDetailCall(Component component,
             boolean skipTransition) {
-        fakeClientCommunication();
-        var pendingJavaScriptInvocations = ui.getInternals()
+        ui.fakeClientCommunication();
+        var pendingJavaScriptInvocations = ui
                 .dumpPendingJavaScriptInvocations();
 
-        Assert.assertEquals(1, pendingJavaScriptInvocations.size());
+        Assertions.assertEquals(1, pendingJavaScriptInvocations.size());
 
         var pendingJavaScriptInvocation = pendingJavaScriptInvocations.get(0);
         var parameters = pendingJavaScriptInvocation.getInvocation()
                 .getParameters();
         var element = component != null ? component.getElement() : null;
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 "return (async function() { this._setDetail($0, $1)}).apply($2)",
                 pendingJavaScriptInvocation.getInvocation().getExpression());
-        Assert.assertEquals(element, parameters.get(0));
-        Assert.assertEquals(skipTransition, parameters.get(1));
-    }
-
-    protected void fakeClientCommunication() {
-        ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
-        ui.getInternals().getStateTree().collectChanges(ignore -> {
-        });
+        Assertions.assertEquals(element, parameters.get(0));
+        Assertions.assertEquals(skipTransition, parameters.get(1));
     }
 }

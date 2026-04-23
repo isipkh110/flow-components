@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -8,27 +8,21 @@
  */
 package com.vaadin.flow.component.charts.tests;
 
-import static org.junit.Assert.assertFalse;
-
+import org.junit.Assert;
 import org.junit.Test;
 
-import com.vaadin.flow.component.charts.examples.AbstractChartExample;
-import com.vaadin.flow.component.charts.examples.pie.PieWithoutAccessibility;
 import com.vaadin.flow.component.charts.testbench.ChartElement;
+import com.vaadin.flow.testutil.TestPath;
 
-public class PieWithoutAccessibilityIT extends AbstractTBTest {
-
-    @Override
-    protected Class<? extends AbstractChartExample> getView() {
-        return PieWithoutAccessibility.class;
-    }
+@TestPath("vaadin-charts/pie/pie-without-accessibility")
+public class PieWithoutAccessibilityIT extends AbstractChartIT {
 
     @Test
     public void setSize_showChart_DimentionsAreSet() {
         ChartElement chart = getChartElement();
-        assertFalse("Accessibility should be disabled",
+        Assert.assertFalse("Accessibility should be disabled",
                 chart.getPropertyBoolean("configuration", "userOptions",
                         "accessibility", "enabled"));
-        assertFalse(chart.$("title").exists());
+        Assert.assertFalse(chart.$("title").exists());
     }
 }

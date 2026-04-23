@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -26,11 +26,36 @@ public enum CardVariant implements ThemeVariant {
     LUMO_HORIZONTAL("horizontal"),
     LUMO_STRETCH_MEDIA("stretch-media"),
     LUMO_COVER_MEDIA("cover-media"),
+    /**
+     * @deprecated Use {@link #ELEVATED} instead.
+     */
+    @Deprecated
     AURA_ELEVATED("elevated"),
+    /**
+     * @deprecated Use {@link #OUTLINED} instead.
+     */
+    @Deprecated
     AURA_OUTLINED("outlined"),
+    /**
+     * @deprecated Use {@link #HORIZONTAL} instead.
+     */
+    @Deprecated
     AURA_HORIZONTAL("horizontal"),
+    /**
+     * @deprecated Use {@link #STRETCH_MEDIA} instead.
+     */
+    @Deprecated
     AURA_STRETCH_MEDIA("stretch-media"),
-    AURA_COVER_MEDIA("cover-media");
+    /**
+     * @deprecated Use {@link #COVER_MEDIA} instead.
+     */
+    @Deprecated
+    AURA_COVER_MEDIA("cover-media"),
+    ELEVATED("elevated"),
+    OUTLINED("outlined"),
+    HORIZONTAL("horizontal"),
+    STRETCH_MEDIA("stretch-media"),
+    COVER_MEDIA("cover-media");
 
     private final String variant;
 

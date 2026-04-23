@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -16,7 +16,9 @@ import com.vaadin.flow.component.charts.model.Configuration;
 import com.vaadin.flow.component.charts.model.DataSeries;
 import com.vaadin.flow.component.charts.model.DataSeriesItem;
 import com.vaadin.flow.component.charts.model.Tooltip;
+import com.vaadin.flow.router.Route;
 
+@Route("vaadin-charts/timeline/area-spline-range")
 public class AreaSplineRange extends AbstractChartExample {
 
     @Override

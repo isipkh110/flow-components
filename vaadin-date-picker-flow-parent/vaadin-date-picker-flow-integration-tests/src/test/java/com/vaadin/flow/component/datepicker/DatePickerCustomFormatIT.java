@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -202,9 +202,8 @@ public class DatePickerCustomFormatIT extends AbstractComponentIT {
 
     @Test
     public void testSetLocaleAfterFormatShouldFormatWithCustomFormat() {
-        Assert.assertEquals(getInputValue(
-                DatePickerCustomFormatPage.SET_LOCALE_AFTER_FORMAT_DATE_PICKER),
-                "2018/05/13");
+        Assert.assertEquals("2018/05/13", getInputValue(
+                DatePickerCustomFormatPage.SET_LOCALE_AFTER_FORMAT_DATE_PICKER));
     }
 
     @Test
@@ -221,9 +220,8 @@ public class DatePickerCustomFormatIT extends AbstractComponentIT {
 
     @Test
     public void testSetFormatAfterSetLocaleShouldFormatWithCustomFormat() {
-        Assert.assertEquals(getInputValue(
-                DatePickerCustomFormatPage.SET_DATE_FORMAT_AFTER_LOCALE_DATE_PICKER),
-                "2018/05/13");
+        Assert.assertEquals("2018/05/13", getInputValue(
+                DatePickerCustomFormatPage.SET_DATE_FORMAT_AFTER_LOCALE_DATE_PICKER));
     }
 
     @Test

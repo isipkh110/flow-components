@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,6 +16,8 @@
 package com.vaadin.flow.component.details;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.component.Component;
@@ -32,7 +34,9 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.shared.HasThemeVariant;
 import com.vaadin.flow.component.shared.HasTooltip;
 import com.vaadin.flow.component.shared.SlotUtils;
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.signals.Signal;
 
 /**
  * Details is an expandable panel for showing and hiding content from the user
@@ -52,7 +56,7 @@ import com.vaadin.flow.shared.Registration;
  * @author Vaadin Ltd
  */
 @Tag("vaadin-details")
-@NpmPackage(value = "@vaadin/details", version = "25.0.0-beta5")
+@NpmPackage(value = "@vaadin/details", version = "25.2.0-alpha8")
 @JsModule("@vaadin/details/src/vaadin-details.js")
 public class Details extends Component implements HasComponents, HasSize,
         HasThemeVariant<DetailsVariant>, HasTooltip {
@@ -295,6 +299,15 @@ public class Details extends Component implements HasComponents, HasSize,
     @Override
     public void addComponentAtIndex(int index, Component component) {
         contentContainer.addComponentAtIndex(index, component);
+    }
+
+    @Override
+    public <T, S extends Signal<T>> void bindChildren(Signal<List<S>> list,
+            SerializableFunction<S, Component> childFactory) {
+        Objects.requireNonNull(list, "ListSignal cannot be null");
+        Objects.requireNonNull(childFactory,
+                "Child element factory cannot be null");
+        contentContainer.bindChildren(list, childFactory);
     }
 
     /**

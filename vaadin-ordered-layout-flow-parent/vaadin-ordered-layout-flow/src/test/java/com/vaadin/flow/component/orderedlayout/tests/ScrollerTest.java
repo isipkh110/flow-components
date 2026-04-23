@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,9 +15,9 @@
  */
 package com.vaadin.flow.component.orderedlayout.tests;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.html.Div;
@@ -25,82 +25,91 @@ import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.Scroller.ScrollDirection;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.shared.HasThemeVariant;
 
-public class ScrollerTest {
+class ScrollerTest {
 
     private static final String SCROLL_DIRECTION_PROPERTY = "scrollDirection";
 
     private Scroller scroller;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         scroller = new Scroller();
     }
 
     @Test
-    public void getScrollDirection_defaultsToBoth() {
-        Assert.assertEquals(ScrollDirection.BOTH,
+    void getScrollDirection_defaultsToBoth() {
+        Assertions.assertEquals(ScrollDirection.BOTH,
                 scroller.getScrollDirection());
-        Assert.assertNull(
+        Assertions.assertNull(
                 scroller.getElement().getProperty(SCROLL_DIRECTION_PROPERTY));
     }
 
     @Test
-    public void setScrollDirection_Horizontal_updatesProperty() {
+    void setScrollDirection_Horizontal_updatesProperty() {
         scroller.setScrollDirection(ScrollDirection.HORIZONTAL);
-        Assert.assertEquals("horizontal",
+        Assertions.assertEquals("horizontal",
                 scroller.getElement().getProperty(SCROLL_DIRECTION_PROPERTY));
     }
 
     @Test
-    public void setScrollDirection_Vertical_updatesProperty() {
+    void setScrollDirection_Vertical_updatesProperty() {
         scroller.setScrollDirection(ScrollDirection.VERTICAL);
-        Assert.assertEquals("vertical",
+        Assertions.assertEquals("vertical",
                 scroller.getElement().getProperty(SCROLL_DIRECTION_PROPERTY));
     }
 
     @Test
-    public void resetContent_nullPointerExceptionIsNotThrown() {
+    void resetContent_nullPointerExceptionIsNotThrown() {
         Div content = new Div();
         scroller.setContent(content);
-        Assert.assertEquals(content, scroller.getContent());
+        Assertions.assertEquals(content, scroller.getContent());
         scroller.setContent(null);
-        Assert.assertNull(scroller.getContent());
+        Assertions.assertNull(scroller.getContent());
     }
 
     @Test
-    public void setScrollDirection_None_updatesProperty() {
+    void setScrollDirection_None_updatesProperty() {
         scroller.setScrollDirection(ScrollDirection.NONE);
-        Assert.assertEquals("none",
+        Assertions.assertEquals("none",
                 scroller.getElement().getProperty(SCROLL_DIRECTION_PROPERTY));
     }
 
     @Test
-    public void setScrollDirection_Both_updatesProperty() {
+    void setScrollDirection_Both_updatesProperty() {
         scroller.setScrollDirection(ScrollDirection.BOTH);
-        Assert.assertNull(
+        Assertions.assertNull(
                 scroller.getElement().getProperty(SCROLL_DIRECTION_PROPERTY));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void setNullScrollDirection_NullPointerExceptionIsThrown() {
-        scroller.setScrollDirection(null);
+    @Test
+    void setNullScrollDirection_NullPointerExceptionIsThrown() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> scroller.setScrollDirection(null));
     }
 
     @Test
-    public void implementsFocusable() {
-        Assert.assertTrue("Scroller should be focusable",
-                Focusable.class.isAssignableFrom(scroller.getClass()));
+    void implementsFocusable() {
+        Assertions.assertTrue(
+                Focusable.class.isAssignableFrom(scroller.getClass()),
+                "Scroller should be focusable");
     }
 
     @Test
-    public void setEnabled_disableChildren() {
+    void setEnabled_disableChildren() {
         Input input = new Input();
 
         scroller.setContent(new VerticalLayout(input));
-        Assert.assertTrue(input.isEnabled());
+        Assertions.assertTrue(input.isEnabled());
 
         scroller.setEnabled(false);
-        Assert.assertFalse(input.isEnabled());
+        Assertions.assertFalse(input.isEnabled());
+    }
+
+    @Test
+    void implementsHasThemeVariant() {
+        Assertions.assertTrue(
+                HasThemeVariant.class.isAssignableFrom(Scroller.class));
     }
 }

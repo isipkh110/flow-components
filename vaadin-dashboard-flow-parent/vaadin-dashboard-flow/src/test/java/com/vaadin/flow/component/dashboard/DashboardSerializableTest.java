@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -10,5 +10,5 @@ package com.vaadin.flow.component.dashboard;
 
 import com.vaadin.flow.testutil.ClassesSerializableTest;
 
-public class DashboardSerializableTest extends ClassesSerializableTest {
+class DashboardSerializableTest extends ClassesSerializableTest {
 }

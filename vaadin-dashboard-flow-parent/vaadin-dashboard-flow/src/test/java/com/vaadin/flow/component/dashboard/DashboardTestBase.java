@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -12,48 +12,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.internal.JacksonUtils;
-import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.tests.MockUIExtension;
 
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
-public class DashboardTestBase {
+class DashboardTestBase {
+    @RegisterExtension
+    final MockUIExtension ui = new MockUIExtension();
 
-    private final UI ui = new UI();
-
-    @Before
-    public void setup() {
-        UI.setCurrent(ui);
-        VaadinSession session = Mockito.mock(VaadinSession.class);
-        Mockito.when(session.hasLock()).thenReturn(true);
-        ui.getInternals().setSession(session);
-        VaadinService service = Mockito.mock(VaadinService.class);
-        Mockito.when(session.getService()).thenReturn(service);
-        fakeClientCommunication();
-    }
-
-    @After
-    public void tearDown() {
-        UI.setCurrent(null);
-    }
-
-    protected UI getUi() {
-        return ui;
-    }
-
-    protected void fakeClientCommunication() {
-        ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
-        ui.getInternals().getStateTree().collectChanges(ignore -> {
-        });
+    @BeforeEach
+    void setup() {
+        ui.fakeClientCommunication();
     }
 
     protected static ArrayNode getItemsArray(
@@ -81,8 +57,8 @@ public class DashboardTestBase {
             Component... expectedChildren) {
         List<DashboardWidget> expectedWidgets = getExpectedWidgets(
                 expectedChildren);
-        Assert.assertEquals(expectedWidgets, dashboard.getWidgets());
-        Assert.assertEquals(Arrays.asList(expectedChildren),
+        Assertions.assertEquals(expectedWidgets, dashboard.getWidgets());
+        Assertions.assertEquals(Arrays.asList(expectedChildren),
                 dashboard.getChildren().toList());
     }
 
@@ -104,7 +80,7 @@ public class DashboardTestBase {
 
     protected static void assertSectionWidgets(DashboardSection section,
             DashboardWidget... expectedWidgets) {
-        Assert.assertEquals(Arrays.asList(expectedWidgets),
+        Assertions.assertEquals(Arrays.asList(expectedWidgets),
                 section.getWidgets());
     }
 

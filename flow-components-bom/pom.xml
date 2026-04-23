@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.vaadin</groupId>
         <artifactId>vaadin-flow-components</artifactId>
-        <version>25.0-SNAPSHOT</version>
+        <version>25.2-SNAPSHOT</version>
     </parent>
     <artifactId>flow-components-bom</artifactId>
     <packaging>pom</packaging>
@@ -20,6 +20,11 @@
             <dependency>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-accordion-testbench</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-ai-components-flow</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -45,6 +50,16 @@
             <dependency>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-avatar-testbench</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-badge-flow</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-badge-testbench</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -410,6 +425,16 @@
             <dependency>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-side-nav-testbench</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-slider-flow</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-slider-testbench</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

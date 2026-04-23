@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,37 +17,26 @@ package com.vaadin.flow.component.popover;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.dom.DomEvent;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.internal.JacksonUtils;
 import com.vaadin.flow.internal.nodefeature.ElementListenerMap;
-import com.vaadin.flow.server.VaadinSession;
 
-public class PopoverOpenedChangeListenerTest {
-    private final UI ui = new UI();
+class PopoverOpenedChangeListenerTest {
     private Popover popover;
     private AtomicReference<Popover.OpenedChangeEvent> event;
     private ComponentEventListener<Popover.OpenedChangeEvent> mockListener;
 
     @SuppressWarnings("unchecked")
-    @Before
-    public void setup() {
-        UI.setCurrent(ui);
-
-        VaadinSession session = Mockito.mock(VaadinSession.class);
-        Mockito.when(session.hasLock()).thenReturn(true);
-        ui.getInternals().setSession(session);
-
+    @BeforeEach
+    void setup() {
         popover = new Popover();
-        ui.add(popover);
 
         event = new AtomicReference<>();
         popover.addOpenedChangeListener(event::set);
@@ -56,43 +45,38 @@ public class PopoverOpenedChangeListenerTest {
         popover.addOpenedChangeListener(mockListener);
     }
 
-    @After
-    public void tearDown() {
-        UI.setCurrent(null);
-    }
-
     @Test
-    public void open() {
+    void open() {
         popover.open();
 
-        Assert.assertFalse(event.get().isFromClient());
-        Assert.assertTrue(event.get().isOpened());
+        Assertions.assertFalse(event.get().isFromClient());
+        Assertions.assertTrue(event.get().isOpened());
         assertListenerCalls(1);
 
         clearCapturedData();
         popover.open();
-        Assert.assertNull(event.get());
+        Assertions.assertNull(event.get());
         assertListenerCalls(0);
     }
 
     @Test
-    public void close() {
+    void close() {
         popover.open();
         clearCapturedData();
 
         popover.close();
-        Assert.assertFalse(event.get().isFromClient());
-        Assert.assertFalse(event.get().isOpened());
+        Assertions.assertFalse(event.get().isFromClient());
+        Assertions.assertFalse(event.get().isOpened());
         assertListenerCalls(1);
 
         clearCapturedData();
         popover.close();
-        Assert.assertNull(event.get());
+        Assertions.assertNull(event.get());
         assertListenerCalls(0);
     }
 
     @Test
-    public void openedChangeFromClient_noChangeEvent() {
+    void openedChangeFromClient_noChangeEvent() {
         Element element = popover.getElement();
         element.getNode().getFeature(ElementListenerMap.class)
                 .fireEvent(new DomEvent(element, "opened-changed",
@@ -100,7 +84,7 @@ public class PopoverOpenedChangeListenerTest {
 
         // The event should only be fired when the opened state changes, not for
         // any opened-changed event from the client
-        Assert.assertNull(event.get());
+        Assertions.assertNull(event.get());
         assertListenerCalls(0);
     }
 

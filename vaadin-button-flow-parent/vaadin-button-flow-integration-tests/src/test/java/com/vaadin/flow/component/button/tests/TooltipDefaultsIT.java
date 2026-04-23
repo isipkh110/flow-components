@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -46,7 +46,7 @@ public class TooltipDefaultsIT extends AbstractComponentIT {
     public void changeDefaults_refreshPage_checkTooltipConfig() {
         $("button").id("set-default-delays-to-5000").click();
         getDriver().navigate().refresh();
-        buttonWithTooltip = $(ButtonElement.class).first();
+        buttonWithTooltip = $(ButtonElement.class).waitForFirst();
         Assert.assertEquals(5000, getActiveHideDelay(buttonWithTooltip));
         Assert.assertEquals(5000, getActiveFocusDelay(buttonWithTooltip));
         Assert.assertEquals(5000, getActiveHoverDelay(buttonWithTooltip));

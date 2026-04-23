@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,26 +17,26 @@ package com.vaadin.flow.data.renderer;
 
 import java.util.Locale;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.function.ValueProvider;
 
-public class NumberRendererTest {
+class NumberRendererTest {
 
     @Test
-    public void getFormattedValue_numberIsFormattedUsingLocale() {
+    void getFormattedValue_numberIsFormattedUsingLocale() {
         NumberRenderer<Number> renderer = new NumberRenderer<>(
                 ValueProvider.identity(), Locale.GERMANY);
 
         String formatted = renderer.getFormattedValue(1.2);
-        Assert.assertEquals("1,2", formatted);
+        Assertions.assertEquals("1,2", formatted);
 
         renderer = new NumberRenderer<>(ValueProvider.identity(),
                 Locale.ENGLISH);
 
         formatted = renderer.getFormattedValue(1.2);
-        Assert.assertEquals("1.2", formatted);
+        Assertions.assertEquals("1.2", formatted);
     }
 
 }

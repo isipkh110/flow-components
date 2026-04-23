@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -20,7 +20,9 @@ import com.vaadin.flow.component.charts.model.TreeMapLayoutAlgorithm;
 import com.vaadin.flow.component.charts.model.TreeSeries;
 import com.vaadin.flow.component.charts.model.TreeSeriesItem;
 import com.vaadin.flow.component.charts.model.VerticalAlign;
+import com.vaadin.flow.router.Route;
 
+@Route("vaadin-charts/other/treemap")
 public class Treemap extends AbstractChartExample {
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,26 +15,26 @@
  */
 package com.vaadin.flow.component.dialog;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class DialogThemeVariantTest {
+class DialogThemeVariantTest {
 
     private final Dialog dialog = new Dialog();
 
     @Test
-    public void addAndRemoveLumoNoPaddingVariant_themeAttributeUpdated() {
+    void addAndRemoveNoPaddingVariant_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        dialog.addThemeVariants(DialogVariant.LUMO_NO_PADDING);
+        dialog.addThemeVariants(DialogVariant.NO_PADDING);
         assertThemeAttribute("no-padding");
-        dialog.removeThemeVariants(DialogVariant.LUMO_NO_PADDING);
+        dialog.removeThemeVariants(DialogVariant.NO_PADDING);
         assertThemeAttribute(null);
     }
 
     private void assertThemeAttribute(String expected) {
         String actual = dialog.getThemeName();
-        assertEquals("Unexpected theme attribute on dialog", expected, actual);
+        assertEquals(expected, actual, "Unexpected theme attribute on dialog");
     }
 
 }

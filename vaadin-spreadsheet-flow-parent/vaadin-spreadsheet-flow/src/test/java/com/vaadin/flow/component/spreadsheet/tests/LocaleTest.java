@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -11,63 +11,61 @@ package com.vaadin.flow.component.spreadsheet.tests;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.spreadsheet.Spreadsheet;
+import com.vaadin.tests.MockUIExtension;
 
-public class LocaleTest {
+class LocaleTest {
+    @RegisterExtension
+    MockUIExtension ui = new MockUIExtension();
 
     private Spreadsheet spreadsheet;
 
-    @Before
-    public void init() {
-        // make sure the default system locale will not be the same as the UI
-        // locale used in the test. Otherwise the tests could be false
-        // positives.
-        Assert.assertNotEquals(Locale.GERMANY,
-                Locale.getDefault(Locale.Category.FORMAT));
+    private Locale testLocale;
 
-        final UI ui = new UI();
-        ui.setLocale(Locale.GERMANY);
-        UI.setCurrent(ui);
+    @BeforeEach
+    void init() {
+        // Choose a test locale that differs from the system locale to ensure
+        // we're actually testing that the UI locale is used, not the system
+        // locale
+        Locale systemLocale = Locale.getDefault(Locale.Category.FORMAT);
+        testLocale = systemLocale.equals(Locale.GERMANY) ? Locale.FRANCE
+                : Locale.GERMANY;
+
+        ui.setLocale(testLocale);
 
         spreadsheet = new Spreadsheet();
     }
 
-    @After
-    public void tearDown() {
-        UI.setCurrent(null);
+    @Test
+    void default_getLocale_equalsUILocale() {
+        Assertions.assertEquals(testLocale, spreadsheet.getLocale());
     }
 
     @Test
-    public void default_getLocale_equalsUILocale() {
-        Assert.assertEquals(Locale.GERMANY, spreadsheet.getLocale());
-    }
-
-    @Test
-    public void default_getCellValueManagerDecimalSymbols_equalsUILocale() {
+    void default_getCellValueManagerDecimalSymbols_equalsUILocale() {
         var cellValueManagerDecimalSymbols = spreadsheet.getCellValueManager()
                 .getOriginalValueDecimalFormat().getDecimalFormatSymbols();
-        var expectedGermanySymbols = DecimalFormatSymbols
-                .getInstance(Locale.GERMANY);
+        var expectedSymbols = DecimalFormatSymbols.getInstance(testLocale);
 
-        Assert.assertEquals(expectedGermanySymbols,
+        Assertions.assertEquals(expectedSymbols,
                 cellValueManagerDecimalSymbols);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void setNullLocale_throws() {
-        spreadsheet.setLocale(null);
+    @Test
+    void setNullLocale_throws() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> spreadsheet.setLocale(null));
     }
 
     @Test
-    public void setLocale_getLocale() {
+    void setLocale_getLocale() {
         spreadsheet.setLocale(Locale.ITALIAN);
-        Assert.assertEquals(Locale.ITALIAN, spreadsheet.getLocale());
+        Assertions.assertEquals(Locale.ITALIAN, spreadsheet.getLocale());
     }
 
 }

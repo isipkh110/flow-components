@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -19,16 +19,11 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import com.vaadin.flow.component.charts.examples.AbstractChartExample;
-import com.vaadin.flow.component.charts.examples.other.GlobalOptions;
 import com.vaadin.flow.component.charts.testbench.ChartElement;
+import com.vaadin.flow.testutil.TestPath;
 
-public class GlobalOptionsIT extends AbstractTBTest {
-
-    @Override
-    protected Class<? extends AbstractChartExample> getView() {
-        return GlobalOptions.class;
-    }
+@TestPath("vaadin-charts/other/global-options")
+public class GlobalOptionsIT extends AbstractChartIT {
 
     @Test
     public void addChart_defaultLangUsed() {

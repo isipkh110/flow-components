@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,18 +15,18 @@
  */
 package com.vaadin.flow.component.icon.tests;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.icon.AbstractIcon;
 import com.vaadin.flow.dom.ElementConstants;
 
-public class AbstractIconTest {
+class AbstractIconTest {
     private AbstractIcon abstractIcon;
 
-    @Before
-    public void init() {
+    @BeforeEach
+    void init() {
         abstractIcon = new AbstractIcon() {
             @Override
             public void setColor(String color) {
@@ -41,19 +41,19 @@ public class AbstractIconTest {
     }
 
     @Test
-    public void setSize() {
+    void setSize() {
         abstractIcon.setSize("100px");
 
-        Assert.assertEquals("100px",
+        Assertions.assertEquals("100px",
                 abstractIcon.getStyle().get(ElementConstants.STYLE_HEIGHT));
-        Assert.assertEquals("100px",
+        Assertions.assertEquals("100px",
                 abstractIcon.getStyle().get(ElementConstants.STYLE_WIDTH));
 
         abstractIcon.setSize(null);
 
-        Assert.assertNull(
+        Assertions.assertNull(
                 abstractIcon.getStyle().get(ElementConstants.STYLE_HEIGHT));
-        Assert.assertNull(
+        Assertions.assertNull(
                 abstractIcon.getStyle().get(ElementConstants.STYLE_WIDTH));
     }
 }

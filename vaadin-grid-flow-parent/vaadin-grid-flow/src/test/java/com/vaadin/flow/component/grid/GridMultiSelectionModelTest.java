@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,10 +15,10 @@
  */
 package com.vaadin.flow.component.grid;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,9 +30,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
@@ -41,7 +41,7 @@ import com.vaadin.flow.data.selection.MultiSelectionEvent;
 import com.vaadin.flow.data.selection.MultiSelectionListener;
 import com.vaadin.flow.data.selection.SelectionEvent;
 
-public class GridMultiSelectionModelTest {
+class GridMultiSelectionModelTest {
 
     private static final Person PERSON_C = new Person("c", 3);
     private static final Person PERSON_B = new Person("b", 2);
@@ -53,8 +53,8 @@ public class GridMultiSelectionModelTest {
     private AtomicReference<Set<Person>> oldSelectionCapture;
     private AtomicInteger events;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         grid = new Grid<>();
         selectionModel = (GridMultiSelectionModel<Person>) grid
                 .setSelectionMode(SelectionMode.MULTI);
@@ -72,14 +72,15 @@ public class GridMultiSelectionModelTest {
         });
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void selectionModelChanged_usingPreviousSelectionModel_throws() {
+    @Test
+    void selectionModelChanged_usingPreviousSelectionModel_throws() {
         grid.setSelectionMode(SelectionMode.SINGLE);
-        selectionModel.select(PERSON_A);
+        Assertions.assertThrows(IllegalStateException.class,
+                () -> selectionModel.select(PERSON_A));
     }
 
     @Test
-    public void changingSelectionModel_firesSelectionEvent() {
+    void changingSelectionModel_firesSelectionEvent() {
         Grid<String> customGrid = new Grid<>();
         customGrid.setSelectionMode(SelectionMode.MULTI);
         customGrid.setItems("Foo", "Bar", "Baz");
@@ -110,7 +111,7 @@ public class GridMultiSelectionModelTest {
     }
 
     @Test
-    public void select_gridWithStrings() {
+    void select_gridWithStrings() {
         Grid<String> gridWithStrings = new Grid<>();
         gridWithStrings.setSelectionMode(SelectionMode.MULTI);
         gridWithStrings.setItems("Foo", "Bar", "Baz");
@@ -134,7 +135,7 @@ public class GridMultiSelectionModelTest {
     }
 
     @Test
-    public void select() {
+    void select() {
         selectionModel.select(PERSON_B);
 
         assertEquals(PERSON_B,
@@ -161,7 +162,7 @@ public class GridMultiSelectionModelTest {
     }
 
     @Test
-    public void deselect() {
+    void deselect() {
         selectionModel.select(PERSON_B);
         selectionModel.deselect(PERSON_B);
 
@@ -176,7 +177,7 @@ public class GridMultiSelectionModelTest {
     }
 
     @Test
-    public void selectItems() {
+    void selectItems() {
         selectionModel.selectItems(PERSON_C, PERSON_B);
 
         assertEquals(PERSON_C,
@@ -201,7 +202,7 @@ public class GridMultiSelectionModelTest {
     }
 
     @Test
-    public void deselectItems() {
+    void deselectItems() {
         selectionModel.selectItems(PERSON_C, PERSON_A, PERSON_B);
 
         selectionModel.deselectItems(PERSON_A);
@@ -229,7 +230,7 @@ public class GridMultiSelectionModelTest {
     }
 
     @Test
-    public void selectionEvent_newSelection_oldSelection() {
+    void selectionEvent_newSelection_oldSelection() {
         selectionModel.selectItems(PERSON_C, PERSON_A, PERSON_B);
 
         assertEquals(asSet(PERSON_C, PERSON_A, PERSON_B),
@@ -270,7 +271,7 @@ public class GridMultiSelectionModelTest {
     }
 
     @Test
-    public void deselectAll() {
+    void deselectAll() {
         selectionModel.selectItems(PERSON_A, PERSON_C, PERSON_B);
 
         assertTrue(selectionModel.isSelected(PERSON_A));
@@ -310,10 +311,30 @@ public class GridMultiSelectionModelTest {
     }
 
     @Test
-    @Ignore
-    // Ignored because selectAll is not implemented yet
-    // See https://github.com/vaadin/flow/issues/2546
-    public void selectAll() {
+    void clientSelectAll_preservesDataProviderOrder() {
+        var model = (AbstractGridMultiSelectionModel<Person>) selectionModel;
+        model.clientSelectAll();
+
+        var value = model.getSelectedItems().stream().toList();
+
+        assertEquals(PERSON_A, value.get(0));
+        assertEquals(PERSON_B, value.get(1));
+        assertEquals(PERSON_C, value.get(2));
+    }
+
+    @Test
+    void selectAll_preservesDataProviderOrder() {
+        selectionModel.selectAll();
+
+        var value = selectionModel.getSelectedItems().stream().toList();
+
+        assertEquals(PERSON_A, value.get(0));
+        assertEquals(PERSON_B, value.get(1));
+        assertEquals(PERSON_C, value.get(2));
+    }
+
+    @Test
+    void selectAll() {
         selectionModel.selectAll();
 
         assertTrue(selectionModel.isSelected(PERSON_A));
@@ -343,7 +364,7 @@ public class GridMultiSelectionModelTest {
     }
 
     @Test
-    public void updateSelection() {
+    void updateSelection() {
         selectionModel.updateSelection(asSet(PERSON_A), Collections.emptySet());
 
         assertTrue(selectionModel.isSelected(PERSON_A));
@@ -408,7 +429,7 @@ public class GridMultiSelectionModelTest {
     }
 
     @Test
-    public void selectTwice() {
+    void selectTwice() {
         selectionModel.select(PERSON_C);
         selectionModel.select(PERSON_C);
 
@@ -427,7 +448,7 @@ public class GridMultiSelectionModelTest {
     }
 
     @Test
-    public void deselectTwice() {
+    void deselectTwice() {
         selectionModel.select(PERSON_C);
         assertEquals(asSet(PERSON_C), currentSelectionCapture.get());
         assertEquals(1, events.get());
@@ -450,7 +471,7 @@ public class GridMultiSelectionModelTest {
     }
 
     @Test
-    public void addValueChangeListener() {
+    void addValueChangeListener() {
         String value = "foo";
 
         Grid<String> grid = new Grid<>();
@@ -487,13 +508,13 @@ public class GridMultiSelectionModelTest {
     }
 
     @Test
-    public void shouldUseGetIdFromListProviderToAlterSelectionNoEquals() {
+    void shouldUseGetIdFromListProviderToAlterSelectionNoEquals() {
         shouldUseGetIdFromListProviderToAlterSelection(NoEquals::new,
                 NoEquals::getLabel);
     }
 
     @Test
-    public void shouldUseGetIdFromListProviderToAlterSelectionAllEquals() {
+    void shouldUseGetIdFromListProviderToAlterSelectionAllEquals() {
         shouldUseGetIdFromListProviderToAlterSelection(AllEquals::new,
                 AllEquals::getLabel);
     }

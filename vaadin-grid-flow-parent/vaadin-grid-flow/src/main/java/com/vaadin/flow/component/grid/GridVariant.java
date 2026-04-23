@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,11 +25,36 @@ public enum GridVariant {
     LUMO_ROW_STRIPES("row-stripes"),
     LUMO_COMPACT("compact"),
     LUMO_WRAP_CELL_CONTENT("wrap-cell-content"),
+    /**
+     * @deprecated Use {@link #NO_BORDER} instead.
+     */
+    @Deprecated
     AURA_NO_BORDER("no-border"),
+    /**
+     * @deprecated Use {@link #NO_ROW_BORDERS} instead.
+     */
+    @Deprecated
     AURA_NO_ROW_BORDERS("no-row-borders"),
+    /**
+     * @deprecated Use {@link #COLUMN_BORDERS} instead.
+     */
+    @Deprecated
     AURA_COLUMN_BORDERS("column-borders"),
+    /**
+     * @deprecated Use {@link #ROW_STRIPES} instead.
+     */
+    @Deprecated
     AURA_ROW_STRIPES("row-stripes"),
-    AURA_WRAP_CELL_CONTENT("wrap-cell-content");
+    /**
+     * @deprecated Use {@link #WRAP_CELL_CONTENT} instead.
+     */
+    @Deprecated
+    AURA_WRAP_CELL_CONTENT("wrap-cell-content"),
+    NO_BORDER("no-border"),
+    NO_ROW_BORDERS("no-row-borders"),
+    COLUMN_BORDERS("column-borders"),
+    ROW_STRIPES("row-stripes"),
+    WRAP_CELL_CONTENT("wrap-cell-content");
 
     private final String variant;
 

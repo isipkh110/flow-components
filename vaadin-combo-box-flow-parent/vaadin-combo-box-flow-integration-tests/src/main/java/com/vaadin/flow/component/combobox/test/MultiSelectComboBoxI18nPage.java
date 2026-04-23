@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,15 +25,8 @@ import com.vaadin.flow.router.Route;
 public class MultiSelectComboBoxI18nPage extends Div {
     public MultiSelectComboBoxI18nPage() {
         MultiSelectComboBox<String> comboBox = new MultiSelectComboBox<>();
-
-        NativeButton toggleAttached = new NativeButton("Toggle attached", e -> {
-            if (comboBox.getParent().isPresent()) {
-                remove(comboBox);
-            } else {
-                add(comboBox);
-            }
-        });
-        toggleAttached.setId("toggle-attached");
+        comboBox.setItems("Item 1", "Item 2", "Item 3");
+        comboBox.setClearButtonVisible(true);
 
         NativeButton setI18n = new NativeButton("Set I18N", e -> {
             MultiSelectComboBoxI18n i18n = new MultiSelectComboBoxI18n()
@@ -52,6 +45,6 @@ public class MultiSelectComboBoxI18nPage extends Div {
         setEmptyI18n.setId("set-empty-i18n");
 
         add(comboBox);
-        add(new Div(toggleAttached, setI18n, setEmptyI18n));
+        add(new Div(setI18n, setEmptyI18n));
     }
 }

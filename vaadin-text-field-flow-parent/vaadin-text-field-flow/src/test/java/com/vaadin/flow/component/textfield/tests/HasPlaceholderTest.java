@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,8 +15,8 @@
  */
 package com.vaadin.flow.component.textfield.tests;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.HasPlaceholder;
 import com.vaadin.flow.component.textfield.BigDecimalField;
@@ -26,47 +26,47 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 
-public class HasPlaceholderTest {
+class HasPlaceholderTest {
 
     @Test
-    public void bigDecimalField() {
+    void bigDecimalField() {
         BigDecimalField c = new BigDecimalField();
-        Assert.assertTrue(c instanceof HasPlaceholder);
+        Assertions.assertTrue(c instanceof HasPlaceholder);
     }
 
     @Test
-    public void emailField() {
+    void emailField() {
         EmailField c = new EmailField();
-        Assert.assertTrue(c instanceof HasPlaceholder);
+        Assertions.assertTrue(c instanceof HasPlaceholder);
     }
 
     @Test
-    public void integerField() {
+    void integerField() {
         IntegerField c = new IntegerField();
-        Assert.assertTrue(c instanceof HasPlaceholder);
+        Assertions.assertTrue(c instanceof HasPlaceholder);
     }
 
     @Test
-    public void numberField() {
+    void numberField() {
         NumberField c = new NumberField();
-        Assert.assertTrue(c instanceof HasPlaceholder);
+        Assertions.assertTrue(c instanceof HasPlaceholder);
     }
 
     @Test
-    public void passwordField() {
+    void passwordField() {
         TextField c = new TextField();
-        Assert.assertTrue(c instanceof HasPlaceholder);
+        Assertions.assertTrue(c instanceof HasPlaceholder);
     }
 
     @Test
-    public void textArea() {
+    void textArea() {
         TextArea c = new TextArea();
-        Assert.assertTrue(c instanceof HasPlaceholder);
+        Assertions.assertTrue(c instanceof HasPlaceholder);
     }
 
     @Test
-    public void textField() {
+    void textField() {
         TextField c = new TextField();
-        Assert.assertTrue(c instanceof HasPlaceholder);
+        Assertions.assertTrue(c instanceof HasPlaceholder);
     }
 }

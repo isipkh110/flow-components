@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,29 +15,32 @@
  */
 package com.vaadin.flow.data.renderer;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 
-public class IconRendererTest {
+class IconRendererTest {
 
     @Tag(Tag.A)
     public static class TestComponent extends Component {
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void dontAllowNullInLabelGenerator() {
+    @Test
+    void dontAllowNullInLabelGenerator() {
         IconRenderer<Object> renderer = new IconRenderer<>(
                 obj -> new TestComponent(), obj -> null);
-        renderer.createComponent(new Object());
+        Assertions.assertThrows(IllegalStateException.class,
+                () -> renderer.createComponent(new Object()));
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void dontAllowNullInIconGenerator() {
+    @Test
+    void dontAllowNullInIconGenerator() {
         IconRenderer<Object> renderer = new IconRenderer<>(obj -> null,
                 obj -> "");
-        renderer.createComponent(new Object());
+        Assertions.assertThrows(IllegalStateException.class,
+                () -> renderer.createComponent(new Object()));
     }
 
 }

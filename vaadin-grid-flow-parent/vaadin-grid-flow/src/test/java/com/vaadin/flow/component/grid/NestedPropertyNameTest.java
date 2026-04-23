@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,12 +15,12 @@
  */
 package com.vaadin.flow.component.grid;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class NestedPropertyNameTest {
+class NestedPropertyNameTest {
 
     @Test
-    public void nestedProperty_sameNameCanBeAdded() {
+    void nestedProperty_sameNameCanBeAdded() {
         Grid<Person> grid = new Grid<>(Person.class);
         grid.addColumn("street.name");
     }

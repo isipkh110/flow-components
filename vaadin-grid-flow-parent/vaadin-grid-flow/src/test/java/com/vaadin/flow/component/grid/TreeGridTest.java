@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,23 +15,25 @@
  */
 package com.vaadin.flow.component.grid;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
-import com.vaadin.tests.dataprovider.MockUI;
+import com.vaadin.tests.MockUIExtension;
 
-public class TreeGridTest {
+class TreeGridTest {
+    @RegisterExtension
+    MockUIExtension ui = new MockUIExtension();
 
-    private MockUI ui;
     private TreeGrid<Item> treeGrid;
 
-    @Before
-    public void init() {
+    @BeforeEach
+    void init() {
         Item item1 = new Item("key 1");
         Item item2 = new Item("key 2");
         treeGrid = new TreeGrid<>();
@@ -42,41 +44,34 @@ public class TreeGridTest {
                 treeData);
         treeGrid.setDataProvider(treeDataProvider);
 
-        ui = new MockUI();
         ui.add(treeGrid);
     }
 
     @Test
-    public void uniqueKeyProviderNotSet_usesKeyMapper() {
-        fakeClientCommunication();
+    void uniqueKeyProviderNotSet_usesKeyMapper() {
+        ui.fakeClientCommunication();
 
-        Assert.assertNotNull(
+        Assertions.assertNotNull(
                 treeGrid.getDataCommunicator().getKeyMapper().get("1"));
-        Assert.assertNotNull(
+        Assertions.assertNotNull(
                 treeGrid.getDataCommunicator().getKeyMapper().get("2"));
-        Assert.assertNull(
+        Assertions.assertNull(
                 treeGrid.getDataCommunicator().getKeyMapper().get("3"));
     }
 
     @Test
-    public void uniqueKeyProviderSet_usesUniqueKeyProvider() {
+    void uniqueKeyProviderSet_usesUniqueKeyProvider() {
         treeGrid.setUniqueKeyProvider(Item::toString);
-        fakeClientCommunication();
+        ui.fakeClientCommunication();
 
-        Assert.assertNull(
+        Assertions.assertNull(
                 treeGrid.getDataCommunicator().getKeyMapper().get("1"));
-        Assert.assertNull(
+        Assertions.assertNull(
                 treeGrid.getDataCommunicator().getKeyMapper().get("2"));
-        Assert.assertNotNull(
+        Assertions.assertNotNull(
                 treeGrid.getDataCommunicator().getKeyMapper().get("key 1"));
-        Assert.assertNotNull(
+        Assertions.assertNotNull(
                 treeGrid.getDataCommunicator().getKeyMapper().get("key 2"));
-    }
-
-    private void fakeClientCommunication() {
-        ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
-        ui.getInternals().getStateTree().collectChanges(ignore -> {
-        });
     }
 
     private static class Item {

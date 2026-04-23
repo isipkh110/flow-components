@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -33,7 +33,7 @@ public class ComboBoxClearIT extends AbstractComboBoxIT {
         waitUntil(driver -> findElements(By.tagName("vaadin-combo-box"))
                 .size() > 0);
         box = $(ComboBoxElement.class).first();
-        Assert.assertEquals(box.getSelectedText(), "Eight");
+        Assert.assertEquals("Eight", box.getSelectedText());
         box.clear();
         Assert.assertTrue(box.getSelectedText().isEmpty());
     }

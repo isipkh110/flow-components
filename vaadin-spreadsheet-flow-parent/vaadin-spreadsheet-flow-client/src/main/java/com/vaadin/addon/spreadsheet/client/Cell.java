@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -38,6 +38,7 @@ public class Cell {
     private String value;
 
     private String cellStyle = "cs0";
+    private String textColor;
     private boolean needsMeasure;
     private SheetWidget sheetWidget;
     private boolean overflowDirty = true;
@@ -65,6 +66,7 @@ public class Cell {
             needsMeasure = cellData.needsMeasure;
             value = cellData.value;
             cellStyle = cellData.cellStyle;
+            textColor = cellData.textColor;
         }
         updateCellValues();
         updateInnerText();
@@ -74,12 +76,17 @@ public class Cell {
         return element;
     }
 
+    public String getTextColor() {
+        return textColor;
+    }
+
     public void update(int col, int row, CellData cellData) {
         this.col = col;
         this.row = row;
-        cellStyle = cellData == null ? "cs0" : cellData.cellStyle;
-        value = cellData == null ? null : cellData.value;
-        needsMeasure = cellData == null ? false : cellData.needsMeasure;
+        this.cellStyle = cellData == null ? "cs0" : cellData.cellStyle;
+        this.value = cellData == null ? null : cellData.value;
+        this.needsMeasure = cellData == null ? false : cellData.needsMeasure;
+        this.textColor = cellData == null ? null : cellData.textColor;
 
         updateInnerText();
         updateCellValues();
@@ -89,12 +96,12 @@ public class Cell {
 
     private void updateInnerText() {
         element.getStyle().setOverflow(Overflow.HIDDEN);
+        element.getStyle().clearColor();
         if (value == null || value.isEmpty()) {
             element.setInnerText("");
             element.getStyle().clearZIndex();
         } else {
-            if (sheetWidget.isMergedCell(SheetWidget.toKey(col, row))
-                    && !(this instanceof MergedCell)) {
+            if (isSubCell()) {
                 element.getStyle().clearZIndex();
             } else {
                 element.getStyle().setZIndex(ZINDEXVALUE);
@@ -105,6 +112,10 @@ public class Cell {
             } else {
                 element.setInnerText(value);
             }
+        }
+
+        if (textColor != null) {
+            element.getStyle().setColor("#" + textColor);
         }
 
         appendOverlayElements();
@@ -169,8 +180,8 @@ public class Cell {
         } else {
             overflowing = false;
         }
-        if (sheetWidget.isMergedCell(SheetWidget.toKey(col, row))
-                && !(this instanceof MergedCell)) {
+
+        if (isSubCell()) {
             element.getStyle().setOverflow(Overflow.HIDDEN);
         } else {
             if (overflowPx > 0) {
@@ -183,6 +194,13 @@ public class Cell {
             }
         }
         overflowDirty = false;
+    }
+
+    private boolean isSubCell() {
+        if (this instanceof MergedCell) {
+            return false;
+        }
+        return sheetWidget.actionHandler.getMergedRegion(col, row) != null;
     }
 
     int measureOverflow() {
@@ -228,12 +246,14 @@ public class Cell {
         return value;
     }
 
-    public void setValue(String value, String cellStyle, boolean needsMeasure) {
+    public void setValue(String value, String cellStyle, String textColor,
+            boolean needsMeasure) {
         if (!this.cellStyle.equals(cellStyle)) {
             this.cellStyle = cellStyle;
             updateClassName();
         }
         this.needsMeasure = needsMeasure;
+        this.textColor = textColor;
         setValue(value);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,16 +19,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.upload.receivers.MultiFileBuffer;
 import com.vaadin.flow.internal.StringUtil;
 
-public class MultiFileBufferTest {
+class MultiFileBufferTest {
 
     @Test
-    public void shouldBeAbleToReadFilesAfterReceiving() throws IOException {
+    void shouldBeAbleToReadFilesAfterReceiving() throws IOException {
         MultiFileBuffer fileBuffer = new MultiFileBuffer();
         TestData[] testData = { new TestData("upload1", "Upload data 1"),
                 new TestData("upload2", "Upload data 2"),
@@ -44,7 +44,7 @@ public class MultiFileBufferTest {
         for (TestData data : testData) {
             final String readData = StringUtil
                     .toUTF8String(fileBuffer.getInputStream(data.filename));
-            Assert.assertEquals(data.data, readData);
+            Assertions.assertEquals(data.data, readData);
         }
     }
 

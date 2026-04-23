@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -19,8 +19,10 @@ import com.vaadin.flow.component.charts.model.PlotOptionsLine;
 import com.vaadin.flow.component.charts.model.Shape;
 import com.vaadin.flow.component.charts.model.YAxis;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.router.Route;
 
 @CssImport(value = "./styles/BasicLineWithCallouts.css", themeFor = "vaadin-chart")
+@Route("vaadin-charts/lineandscatter/basic-line-with-callouts")
 public class BasicLineWithCallouts extends AbstractChartExample {
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,99 +15,98 @@
  */
 package com.vaadin.flow.component.timepicker.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.component.timepicker.TimePickerVariant;
 
-public class TimePickerVariantTest {
+class TimePickerVariantTest {
 
     private TimePicker timePicker;
 
-    @Before
-    public void initTest() {
+    @BeforeEach
+    void initTest() {
         timePicker = new TimePicker();
     }
 
     @Test
-    public void addAndRemoveLumoAlignCenterVariant_themeAttributeUpdated() {
+    void addAndRemoveAlignCenterVariant_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        timePicker.addThemeVariants(TimePickerVariant.LUMO_ALIGN_CENTER);
+        timePicker.addThemeVariants(TimePickerVariant.ALIGN_CENTER);
         assertThemeAttribute("align-center");
-        timePicker.removeThemeVariants(TimePickerVariant.LUMO_ALIGN_CENTER);
+        timePicker.removeThemeVariants(TimePickerVariant.ALIGN_CENTER);
         assertThemeAttribute(null);
     }
 
     @Test
-    public void addLumoAlignRightVariant_themeAttributeUpdated() {
+    void addAlignRightVariant_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        timePicker.addThemeVariants(TimePickerVariant.LUMO_ALIGN_RIGHT);
+        timePicker.addThemeVariants(TimePickerVariant.ALIGN_RIGHT);
         assertThemeAttribute("align-right");
     }
 
     @Test
-    public void addLumoSmallVariant_themeAttributeUpdated() {
+    void addSmallVariant_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        timePicker.addThemeVariants(TimePickerVariant.LUMO_SMALL);
+        timePicker.addThemeVariants(TimePickerVariant.SMALL);
         assertThemeAttribute("small");
     }
 
     @Test
-    public void addLumoAlignLeftVariant_themeAttributeUpdated() {
+    void addAlignLeftVariant_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        timePicker.addThemeVariants(TimePickerVariant.LUMO_ALIGN_LEFT);
+        timePicker.addThemeVariants(TimePickerVariant.ALIGN_LEFT);
         assertThemeAttribute("align-left");
     }
 
     @Test
-    public void addLumoHelperAboveField_themeAttributeUpdated() {
+    void addHelperAbove_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        timePicker.addThemeVariants(TimePickerVariant.LUMO_HELPER_ABOVE_FIELD);
+        timePicker.addThemeVariants(TimePickerVariant.HELPER_ABOVE);
         assertThemeAttribute("helper-above-field");
     }
 
     @Test
-    public void addAndRemoveMultipleVariants_themeAttributeUpdated() {
+    void addAndRemoveMultipleVariants_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        timePicker.addThemeVariants(TimePickerVariant.LUMO_SMALL);
-        timePicker.addThemeVariants(TimePickerVariant.LUMO_HELPER_ABOVE_FIELD);
+        timePicker.addThemeVariants(TimePickerVariant.SMALL);
+        timePicker.addThemeVariants(TimePickerVariant.HELPER_ABOVE);
         assertThemeAttributeContains("helper-above-field");
         assertThemeAttributeContains("small");
-        timePicker
-                .removeThemeVariants(TimePickerVariant.LUMO_HELPER_ABOVE_FIELD);
+        timePicker.removeThemeVariants(TimePickerVariant.HELPER_ABOVE);
         assertThemeAttribute("small");
     }
 
     @Test
-    public void addAndRemoveAllMultipleVariants_themeAttributeUpdated() {
+    void addAndRemoveAllMultipleVariants_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        timePicker.addThemeVariants(TimePickerVariant.LUMO_SMALL);
-        timePicker.addThemeVariants(TimePickerVariant.LUMO_HELPER_ABOVE_FIELD);
+        timePicker.addThemeVariants(TimePickerVariant.SMALL);
+        timePicker.addThemeVariants(TimePickerVariant.HELPER_ABOVE);
         timePicker.getThemeNames().clear();
         assertThemeAttribute(null);
     }
 
     @Test
-    public void addTwiceAndSeeIbce_themeAttributeUpdated() {
+    void addTwiceAndSeeOnce_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        timePicker.addThemeVariants(TimePickerVariant.LUMO_SMALL);
-        timePicker.addThemeVariants(TimePickerVariant.LUMO_SMALL);
+        timePicker.addThemeVariants(TimePickerVariant.SMALL);
+        timePicker.addThemeVariants(TimePickerVariant.SMALL);
         assertThemeAttribute("small");
     }
 
     private void assertThemeAttribute(String expected) {
         String actual = timePicker.getThemeName();
-        assertEquals("Unexpected theme attribute on time picker", expected,
-                actual);
+        assertEquals(expected, actual,
+                "Unexpected theme attribute on time picker");
     }
 
     private void assertThemeAttributeContains(String expected) {
         String actual = timePicker.getThemeName();
-        assertTrue("Theme attribute not present on time picker",
-                actual.contains(expected));
+        assertTrue(actual.contains(expected),
+                "Theme attribute not present on time picker");
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -8,15 +8,15 @@
  */
 package com.vaadin.flow.component.spreadsheet.tests;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.spreadsheet.Spreadsheet;
 
-public class SpreadsheetTest {
+class SpreadsheetTest {
     @Test
-    public void setId_getId_returnsId() {
+    void setId_getId_returnsId() {
         var spreadsheet = new Spreadsheet();
         spreadsheet.setId("foo");
         assertEquals("foo", spreadsheet.getId().orElse(null));

@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -570,6 +570,45 @@ public class CustomEditorIT extends AbstractSpreadsheetIT {
 
     private WebElement getActiveElement() {
         return getDriver().switchTo().activeElement();
+    }
+
+    @Test
+    public void comboBoxEditorWithSelect_clickCell_callbackFiredOnce() {
+        createNewSpreadsheet();
+        loadTestFixture(TestFixtures.CustomEditorSelect);
+
+        clickCell("B2");
+        getCommandExecutor().waitForVaadin();
+
+        Assert.assertEquals("1", getCallbackCount());
+    }
+
+    @Test
+    public void comboBoxEditorWithSelect_switchBetweenCells_noInfiniteLoop() {
+        createNewSpreadsheet();
+        loadTestFixture(TestFixtures.CustomEditorSelect);
+
+        // Click rapidly through editor cells and stop at a non-editor cell.
+        // The server-side callback has a 200ms delay, so responses arrive
+        // after the user has already moved past those cells.
+        clickCell("B2");
+        clickCell("C2");
+        clickCell("F2");
+        getCommandExecutor().waitForVaadin();
+
+        // Selection must stay on the cell where the user stopped, not jump
+        // back to a stale editor cell when delayed responses arrive.
+        assertAddressFieldValue("F2");
+
+        // Each editor cell visited should trigger exactly one callback.
+        // Without the fix, this would cause an infinite loop.
+        int count = Integer.parseInt(getCallbackCount());
+        Assert.assertTrue("Expected at most 2 callbacks but got " + count
+                + " — possible infinite loop", count <= 2);
+    }
+
+    private String getCallbackCount() {
+        return $(TestBenchElement.class).id("callbackCount").getText();
     }
 
     private void clickToggleCellVisibleButton() {

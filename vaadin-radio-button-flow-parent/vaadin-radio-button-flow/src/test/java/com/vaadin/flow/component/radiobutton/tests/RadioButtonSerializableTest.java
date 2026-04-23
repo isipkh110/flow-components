@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,29 +15,26 @@
  */
 package com.vaadin.flow.component.radiobutton.tests;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.testutil.ClassesSerializableTest;
+import com.vaadin.tests.MockUIExtension;
 
-public class RadioButtonSerializableTest extends ClassesSerializableTest {
-    @After
-    public void tearDown() {
-        UI.setCurrent(null);
-    }
+class RadioButtonSerializableTest extends ClassesSerializableTest {
+    @RegisterExtension
+    final MockUIExtension ui = new MockUIExtension();
 
     @Test
-    public void setItems_addToUI_radioButtonGroupIsSerializable()
-            throws Throwable {
+    void setItems_addToUI_radioButtonGroupIsSerializable() throws Throwable {
         var group = new RadioButtonGroup<>();
         group.setItems("Item 1", "Item 2");
 
-        var ui = new UI();
-        UI.setCurrent(ui);
+        // Serializing session requires more setup, not necessary for this test
+        ui.getUI().getInternals().setSession(null);
         ui.add(group);
 
-        serializeAndDeserialize(ui);
+        serializeAndDeserialize(ui.getUI());
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 
 import com.vaadin.flow.testutil.ClassesSerializableTest;
 
-public class ChartsSerializableTest extends ClassesSerializableTest {
+class ChartsSerializableTest extends ClassesSerializableTest {
     @Override
     protected Stream<String> getExcludedPatterns() {
         return Stream.concat(super.getExcludedPatterns(), Stream.of(

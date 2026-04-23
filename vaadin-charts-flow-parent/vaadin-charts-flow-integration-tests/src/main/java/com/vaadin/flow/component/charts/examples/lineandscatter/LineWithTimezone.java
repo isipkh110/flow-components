@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -17,7 +17,9 @@ import com.vaadin.flow.component.charts.model.Configuration;
 import com.vaadin.flow.component.charts.model.ListSeries;
 import com.vaadin.flow.component.charts.model.PlotOptionsSeries;
 import com.vaadin.flow.component.html.NativeButton;
+import com.vaadin.flow.router.Route;
 
+@Route("vaadin-charts/lineandscatter/line-with-timezone")
 public class LineWithTimezone extends AbstractChartExample {
 
     @Override

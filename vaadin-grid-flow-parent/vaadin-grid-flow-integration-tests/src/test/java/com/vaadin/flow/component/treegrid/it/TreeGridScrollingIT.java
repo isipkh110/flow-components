@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -32,8 +32,8 @@ public class TreeGridScrollingIT extends AbstractTreeGridIT {
 
     @Test
     public void scrollingTree_expandCollapseFromBeginning_correctItemsShown() {
-        Assert.assertEquals(getTreeGrid().getRowCount(),
-                TreeGridScrollingPage.DEFAULT_NODES);
+        Assert.assertEquals(TreeGridScrollingPage.DEFAULT_NODES,
+                getTreeGrid().getRowCount());
 
         verifyRow(0, 0, 0);
         verifyRow(10, 0, 10);

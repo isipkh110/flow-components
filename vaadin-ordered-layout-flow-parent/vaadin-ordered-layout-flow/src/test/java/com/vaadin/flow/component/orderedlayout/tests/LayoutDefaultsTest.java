@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,8 +17,8 @@ package com.vaadin.flow.component.orderedlayout.tests;
 
 import java.util.stream.Stream;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.NativeButton;
@@ -28,77 +28,76 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.shared.HasThemeVariant;
 
-public class LayoutDefaultsTest {
+class LayoutDefaultsTest {
 
     @Test
-    public void testHorizontalLayout_byDefault_spacingIsOn() {
-        Assert.assertTrue("Spacing should be on by default",
-                new HorizontalLayout().isSpacing());
-        Assert.assertFalse("Padding shouldn't be on by default",
-                new HorizontalLayout().isPadding());
-        Assert.assertFalse("Margin shouldn't be on by default",
-                new HorizontalLayout().isMargin());
+    void testHorizontalLayout_byDefault_spacingIsOn() {
+        Assertions.assertTrue(new HorizontalLayout().isSpacing(),
+                "Spacing should be on by default");
+        Assertions.assertFalse(new HorizontalLayout().isPadding(),
+                "Padding shouldn't be on by default");
+        Assertions.assertFalse(new HorizontalLayout().isMargin(),
+                "Margin shouldn't be on by default");
     }
 
     @Test
-    public void testHorizontalLayout_withJustifyContentModeAndChildren_justifyContentModeIsSet() {
+    void testHorizontalLayout_withJustifyContentModeAndChildren_justifyContentModeIsSet() {
         HorizontalLayout layout = new HorizontalLayout(
                 FlexComponent.JustifyContentMode.END, new Span(),
                 new NativeButton());
-        Assert.assertEquals("JustifyContentMode should be set by constructor",
-                FlexComponent.JustifyContentMode.END,
-                layout.getJustifyContentMode());
-        Assert.assertEquals("Children components must be added by constructor",
-                2, layout.getChildren().count());
+        Assertions.assertEquals(FlexComponent.JustifyContentMode.END,
+                layout.getJustifyContentMode(),
+                "JustifyContentMode should be set by constructor");
+        Assertions.assertEquals(2, layout.getChildren().count(),
+                "Children components must be added by constructor");
     }
 
     @Test
-    public void testHorizontalLayout_withAlignmentAndChildren_DefaultVerticalAlignmentIsSet() {
+    void testHorizontalLayout_withAlignmentAndChildren_DefaultVerticalAlignmentIsSet() {
         HorizontalLayout layout = new HorizontalLayout(Alignment.STRETCH,
                 new Span(), new NativeButton());
-        Assert.assertEquals(
-                "DefaultVerticalAlignment should be set by constructor",
-                Alignment.STRETCH, layout.getAlignItems());
-        Assert.assertEquals("Children components must be added by constructor",
-                2, layout.getChildren().count());
+        Assertions.assertEquals(Alignment.STRETCH, layout.getAlignItems(),
+                "DefaultVerticalAlignment should be set by constructor");
+        Assertions.assertEquals(2, layout.getChildren().count(),
+                "Children components must be added by constructor");
     }
 
     @Test
-    public void testVerticalLayout_withJustifyContentModeAndChildren_justifyContentModeIsSet() {
+    void testVerticalLayout_withJustifyContentModeAndChildren_justifyContentModeIsSet() {
         VerticalLayout layout = new VerticalLayout(
                 FlexComponent.JustifyContentMode.END, new Span(),
                 new NativeButton());
-        Assert.assertEquals("JustifyContentMode should be set by constructor",
-                FlexComponent.JustifyContentMode.END,
-                layout.getJustifyContentMode());
-        Assert.assertEquals("Children components must be added by constructor",
-                2, layout.getChildren().count());
+        Assertions.assertEquals(FlexComponent.JustifyContentMode.END,
+                layout.getJustifyContentMode(),
+                "JustifyContentMode should be set by constructor");
+        Assertions.assertEquals(2, layout.getChildren().count(),
+                "Children components must be added by constructor");
     }
 
     @Test
-    public void testVerticalLayout_withAlignmentAndChildren_DefaultVerticalAlignmentIsSet() {
+    void testVerticalLayout_withAlignmentAndChildren_DefaultVerticalAlignmentIsSet() {
         VerticalLayout layout = new VerticalLayout(Alignment.STRETCH,
                 new Span(), new NativeButton());
-        Assert.assertEquals(
-                "DefaultHorizontalAlignment should be set by constructor",
-                Alignment.STRETCH, layout.getAlignItems());
-        Assert.assertEquals("Children components must be added by constructor",
-                2, layout.getChildren().count());
+        Assertions.assertEquals(Alignment.STRETCH, layout.getAlignItems(),
+                "DefaultHorizontalAlignment should be set by constructor");
+        Assertions.assertEquals(2, layout.getChildren().count(),
+                "Children components must be added by constructor");
     }
 
     @Test
-    public void testVerticalLayout_byDefault_spacingAndPaddingIsOn() {
-        Assert.assertTrue("Padding should be on by default",
-                new VerticalLayout().isPadding());
-        Assert.assertTrue("Spacing should be on by default",
-                new VerticalLayout().isSpacing());
-        Assert.assertFalse("Margin shouldn't be on by default",
-                new VerticalLayout().isMargin());
+    void testVerticalLayout_byDefault_spacingAndPaddingIsOn() {
+        Assertions.assertTrue(new VerticalLayout().isPadding(),
+                "Padding should be on by default");
+        Assertions.assertTrue(new VerticalLayout().isSpacing(),
+                "Spacing should be on by default");
+        Assertions.assertFalse(new VerticalLayout().isMargin(),
+                "Margin shouldn't be on by default");
     }
 
     @Test
-    public void create_Layout() {
+    void create_Layout() {
         // Just testing that creating layout actually compiles and doesn't
         // throw. Test is on purpose, so that the implementation not
         // accidentally removed.
@@ -116,19 +115,19 @@ public class LayoutDefaultsTest {
     }
 
     @Test
-    public void defaultAlignmentValues() {
+    void defaultAlignmentValues() {
         VerticalLayout verticalLayout = new VerticalLayout();
-        Assert.assertEquals(Alignment.START,
+        Assertions.assertEquals(Alignment.START,
                 verticalLayout.getDefaultHorizontalComponentAlignment());
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Assert.assertEquals(Alignment.STRETCH,
+        Assertions.assertEquals(Alignment.STRETCH,
                 horizontalLayout.getDefaultVerticalComponentAlignment());
 
     }
 
     @Test
-    public void expandable_Layout() {
+    void expandable_Layout() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.addAndExpand(new Span("Foo"), new Span("bar"));
         testExpandableComponent(horizontalLayout.getWidth(),
@@ -140,11 +139,23 @@ public class LayoutDefaultsTest {
                 verticalLayout.getChildren());
     }
 
+    @Test
+    void horizontalLayoutImplementsHasThemeVariant() {
+        Assertions.assertTrue(
+                HasThemeVariant.class.isAssignableFrom(HorizontalLayout.class));
+    }
+
+    @Test
+    void verticalLayoutImplementsHasThemeVariant() {
+        Assertions.assertTrue(
+                HasThemeVariant.class.isAssignableFrom(VerticalLayout.class));
+    }
+
     private void testExpandableComponent(String size,
             Stream<Component> components) {
-        Assert.assertEquals(size, "100%");
+        Assertions.assertEquals("100%", size);
 
-        components.forEach(component -> Assert.assertEquals(
-                component.getElement().getStyle().get("flex-grow"), "1.0"));
+        components.forEach(component -> Assertions.assertEquals("1.0",
+                component.getElement().getStyle().get("flex-grow")));
     }
 }

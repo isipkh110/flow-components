@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -111,7 +111,7 @@ import tools.jackson.databind.node.ArrayNode;
  * @author Vaadin Ltd
  */
 @Tag("vaadin-checkbox-group")
-@NpmPackage(value = "@vaadin/checkbox-group", version = "25.0.0-beta5")
+@NpmPackage(value = "@vaadin/checkbox-group", version = "25.2.0-alpha8")
 @JsModule("@vaadin/checkbox-group/src/vaadin-checkbox-group.js")
 public class CheckboxGroup<T>
         extends AbstractSinglePropertyField<CheckboxGroup<T>, Set<T>>
@@ -390,6 +390,9 @@ public class CheckboxGroup<T>
             keyMapper.removeAll();
             selectionPreservationHandler.handleDataChange(dataChangeEvent);
             rebuild();
+            // Re-sync the presentation value so the element property uses the
+            // new keys matching the rebuilt checkboxes.
+            setPresentationValue(getValue());
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,20 +15,22 @@
  */
 package com.vaadin.flow.component.dialog;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class DialogHasStyleTest {
+class DialogHasStyleTest {
 
     private Dialog dialog;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         dialog = new Dialog();
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void getStyle_unsupported() {
-        dialog.getStyle();
+    @Test
+    void getStyle_unsupported() {
+        Assertions.assertThrows(UnsupportedOperationException.class,
+                () -> dialog.getStyle());
     }
 }

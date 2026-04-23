@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,20 +15,21 @@
  */
 package com.vaadin.flow.component.upload;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class DisabledUploadTest {
+class DisabledUploadTest {
     @Test
-    public void preventsStartingUploads() {
+    void preventsStartingUploads() {
         Upload upload = new Upload();
         upload.setEnabled(false);
 
-        IllegalStateException exception = Assert
+        IllegalStateException exception = Assertions
                 .assertThrows(IllegalStateException.class, () -> {
                     upload.getStreamVariable().streamingStarted(null);
                 });
-        Assert.assertTrue(exception.getMessage().contains(
-                "Cannot start upload because the Upload component is disabled"));
+        Assertions.assertEquals(
+                "Cannot start upload because the Upload component is disabled",
+                exception.getMessage());
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -12,6 +12,7 @@ package com.vaadin.flow.component.spreadsheet.tests.fixtures;
  * Test fixtures for server-side Spreadsheet manipulation
  *
  */
+@SuppressWarnings("java:S115") // Enum constants use PascalCase by convention
 public enum TestFixtures {
     FirstColumnWidth(FirstColumnWidthFixture.class),
     PopupButton(PopupButtonFixture.class),
@@ -39,11 +40,13 @@ public enum TestFixtures {
     AdjacentCustomEditors(AdjacentCustomEditorsFixture.class),
     CustomEditorShared(CustomEditorSharedFixture.class),
     CustomEditorRow(CustomEditorRowFixture.class),
+    CustomEditorSelect(CustomEditorSelectFixture.class),
     Styles(StylesFixture.class),
     LockCell(LockCellFixture.class),
     LockSheet(LockSheetFixture.class),
     CustomComponent(CustomComponentFixture.class),
     Action(ActionFixture.class),
+    IconAction(IconActionFixture.class),
     InsertRow(InsertRowFixture.class),
     DeleteRow(DeleteRowFixture.class),
     RowHeaderDoubleClick(RowHeaderDoubleClickFixture.class);

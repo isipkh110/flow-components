@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -30,9 +30,29 @@ public enum MenuBarVariant implements ThemeVariant {
     LUMO_ICON("icon"),
     LUMO_END_ALIGNED("end-aligned"),
     LUMO_DROPDOWN_INDICATORS("dropdown-indicators"),
+    /**
+     * @deprecated Use {@link #ALIGN_END} instead.
+     */
+    @Deprecated
     AURA_END_ALIGNED("end-aligned"),
+    /**
+     * @deprecated Use {@link #PRIMARY} instead.
+     */
+    @Deprecated
     AURA_PRIMARY("primary"),
-    AURA_TERTIARY("tertiary");
+    /**
+     * @deprecated Use {@link #TERTIARY} instead.
+     */
+    @Deprecated
+    AURA_TERTIARY("tertiary"),
+    PRIMARY("primary"),
+    TERTIARY("tertiary"),
+    SUCCESS("success"),
+    WARNING("warning"),
+    ERROR("error"),
+    ALIGN_END("end-aligned"),
+    SMALL("small"),
+    LARGE("large");
 
     private final String variant;
 

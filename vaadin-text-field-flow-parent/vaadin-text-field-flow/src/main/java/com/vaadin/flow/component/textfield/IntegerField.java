@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,7 +20,9 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.shared.HasThemeVariant;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.dom.SignalBinding;
 import com.vaadin.flow.function.SerializableFunction;
+import com.vaadin.flow.signals.Signal;
 
 /**
  * IntegerField is an extension of Text Field that only accepts integer numbers.
@@ -68,7 +70,7 @@ import com.vaadin.flow.function.SerializableFunction;
  * @author Vaadin Ltd.
  */
 @Tag("vaadin-integer-field")
-@NpmPackage(value = "@vaadin/integer-field", version = "25.0.0-beta5")
+@NpmPackage(value = "@vaadin/integer-field", version = "25.2.0-alpha8")
 @JsModule("@vaadin/integer-field/src/vaadin-integer-field.js")
 public class IntegerField extends AbstractNumberField<IntegerField, Integer>
         implements HasThemeVariant<TextFieldVariant> {
@@ -277,6 +279,56 @@ public class IntegerField extends AbstractNumberField<IntegerField, Integer>
      */
     public int getStep() {
         return (int) getStepDouble();
+    }
+
+    /**
+     * Binds the given signal to the minimum value for this field.
+     * <p>
+     * The minimum value is set immediately with the current signal value when
+     * the binding is created, and is kept synchronized with any subsequent
+     * signal value changes while the component is in attached state. When the
+     * component is in detached state, signal value changes have no effect.
+     * <p>
+     * While a signal is bound, any attempt to set the minimum value manually
+     * through {@link #setMin(int)} throws a
+     * {@link com.vaadin.flow.signals.BindingActiveException}.
+     *
+     * @param signal
+     *            the signal to bind the minimum value to, not {@code null}
+     * @return a {@link SignalBinding} that can be used to register
+     *         {@link SignalBinding#onChange(com.vaadin.flow.function.SerializableConsumer)
+     *         onChange} callbacks
+     * @see #setMin(int)
+     * @since 25.1
+     */
+    public SignalBinding<Double> bindMin(Signal<Integer> signal) {
+        return bindMinInternal(
+                signal == null ? null : signal.map(Integer::doubleValue));
+    }
+
+    /**
+     * Binds the given signal to the maximum value for this field.
+     * <p>
+     * The maximum value is set immediately with the current signal value when
+     * the binding is created, and is kept synchronized with any subsequent
+     * signal value changes while the component is in attached state. When the
+     * component is in detached state, signal value changes have no effect.
+     * <p>
+     * While a signal is bound, any attempt to set the maximum value manually
+     * through {@link #setMax(int)} throws a
+     * {@link com.vaadin.flow.signals.BindingActiveException}.
+     *
+     * @param signal
+     *            the signal to bind the maximum value to, not {@code null}
+     * @return a {@link SignalBinding} that can be used to register
+     *         {@link SignalBinding#onChange(com.vaadin.flow.function.SerializableConsumer)
+     *         onChange} callbacks
+     * @see #setMax(int)
+     * @since 25.1
+     */
+    public SignalBinding<Double> bindMax(Signal<Integer> signal) {
+        return bindMaxInternal(
+                signal == null ? null : signal.map(Integer::doubleValue));
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,6 +21,7 @@ import java.util.Locale;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeButton;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.messages.MessageList;
 import com.vaadin.flow.component.messages.MessageListItem;
 import com.vaadin.flow.router.Route;
@@ -70,6 +71,9 @@ public class MessageListPage extends Div {
 
         addButton("setLocale", () -> UI.getCurrent().setLocale(Locale.ITALIAN));
 
+        addButton("setLocaleVariant",
+                () -> UI.getCurrent().setLocale(Locale.of("de", "DE", "hw")));
+
         addButton("detachList", () -> remove(messageList));
         addButton("attachList", () -> addComponentAsFirst(messageList));
 
@@ -88,6 +92,42 @@ public class MessageListPage extends Div {
             foo.setUserImageHandler(resource);
         });
 
+        addButton("addItemWithAttachments", () -> {
+            MessageListItem item = new MessageListItem("With Attachments",
+                    Instant.now(), "User");
+            item.addAttachment(new MessageListItem.Attachment("proposal.pdf",
+                    "#proposal.pdf", "application/pdf"));
+            item.addAttachment(new MessageListItem.Attachment("budget.xlsx",
+                    "#budget.xlsx",
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+            item.addAttachment(new MessageListItem.Attachment("chart.svg",
+                    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect fill='%23f0f0f0' width='200' height='150'/%3E%3Crect fill='%234CAF50' x='20' y='100' width='30' height='40'/%3E%3Crect fill='%232196F3' x='60' y='70' width='30' height='70'/%3E%3C/svg%3E",
+                    "image/svg+xml"));
+            messageList.addItem(item);
+        });
+
+        addButton("addAttachmentToFirstItem", () -> {
+            foo.addAttachment(new MessageListItem.Attachment("agenda.pdf",
+                    "#agenda.pdf", "application/pdf"));
+        });
+
+        // Output section for test verification
+        Div outputSection = new Div();
+        outputSection.getStyle().set("margin-top", "20px");
+
+        Span outputTitle = new Span("Clicked attachment: ");
+        Span clickedAttachment = new Span();
+        clickedAttachment.setId("clickedAttachment");
+        outputSection.add(outputTitle, clickedAttachment);
+
+        add(outputSection);
+
+        messageList.addAttachmentClickListener(event -> {
+            var item = event.getItem();
+            var attachment = event.getAttachment();
+            clickedAttachment.setText(item.getUserName() + " | "
+                    + attachment.name() + " | " + attachment.mimeType());
+        });
     }
 
     private void addButton(String id, Command action) {

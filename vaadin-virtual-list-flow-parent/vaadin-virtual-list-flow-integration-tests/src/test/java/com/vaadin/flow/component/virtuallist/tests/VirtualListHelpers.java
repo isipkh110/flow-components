@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -50,5 +50,15 @@ public class VirtualListHelpers {
             }
         }
         return array;
+    }
+
+    public static String getItemText(WebDriver driver, WebElement element,
+            int index) {
+        Object result = ((JavascriptExecutor) driver).executeScript(
+                "const children = arguments[0].children;"
+                        + "if (arguments[1] >= children.length) return null;"
+                        + "return children[arguments[1]].textContent;",
+                element, index);
+        return result != null ? result.toString() : null;
     }
 }

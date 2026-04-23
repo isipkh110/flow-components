@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,101 +15,95 @@
  */
 package com.vaadin.flow.component.datetimepicker;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class DateTimePickerVariantTest {
+class DateTimePickerVariantTest {
 
     private DateTimePicker dateTimePicker;
 
-    @Before
-    public void initTest() {
+    @BeforeEach
+    void initTest() {
         dateTimePicker = new DateTimePicker();
     }
 
     @Test
-    public void addAndRemoveLumoAlignCenterVariant_themeAttributeUpdated() {
+    void addAndRemoveAlignCenterVariant_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        dateTimePicker
-                .addThemeVariants(DateTimePickerVariant.LUMO_ALIGN_CENTER);
+        dateTimePicker.addThemeVariants(DateTimePickerVariant.ALIGN_CENTER);
         assertThemeAttribute("align-center");
-        dateTimePicker
-                .removeThemeVariants(DateTimePickerVariant.LUMO_ALIGN_CENTER);
+        dateTimePicker.removeThemeVariants(DateTimePickerVariant.ALIGN_CENTER);
         assertThemeAttribute(null);
     }
 
     @Test
-    public void addLumoAlignRightVariant_themeAttributeUpdated() {
+    void addAlignRightVariant_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        dateTimePicker.addThemeVariants(DateTimePickerVariant.LUMO_ALIGN_RIGHT);
+        dateTimePicker.addThemeVariants(DateTimePickerVariant.ALIGN_RIGHT);
         assertThemeAttribute("align-right");
     }
 
     @Test
-    public void addLumoSmallVariant_themeAttributeUpdated() {
+    void addSmallVariant_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        dateTimePicker.addThemeVariants(DateTimePickerVariant.LUMO_SMALL);
+        dateTimePicker.addThemeVariants(DateTimePickerVariant.SMALL);
         assertThemeAttribute("small");
     }
 
     @Test
-    public void addLumoAlignLeftVariant_themeAttributeUpdated() {
+    void addAlignLeftVariant_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        dateTimePicker.addThemeVariants(DateTimePickerVariant.LUMO_ALIGN_LEFT);
+        dateTimePicker.addThemeVariants(DateTimePickerVariant.ALIGN_LEFT);
         assertThemeAttribute("align-left");
     }
 
     @Test
-    public void addLumoHelperAboveField_themeAttributeUpdated() {
+    void addHelperAbove_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        dateTimePicker.addThemeVariants(
-                DateTimePickerVariant.LUMO_HELPER_ABOVE_FIELD);
+        dateTimePicker.addThemeVariants(DateTimePickerVariant.HELPER_ABOVE);
         assertThemeAttribute("helper-above-field");
     }
 
     @Test
-    public void addAndRemoveMultipleVariants_themeAttributeUpdated() {
+    void addAndRemoveMultipleVariants_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        dateTimePicker.addThemeVariants(DateTimePickerVariant.LUMO_SMALL);
-        dateTimePicker.addThemeVariants(
-                DateTimePickerVariant.LUMO_HELPER_ABOVE_FIELD);
+        dateTimePicker.addThemeVariants(DateTimePickerVariant.SMALL);
+        dateTimePicker.addThemeVariants(DateTimePickerVariant.HELPER_ABOVE);
         assertThemeAttributeContains("helper-above-field");
         assertThemeAttributeContains("small");
-        dateTimePicker.removeThemeVariants(
-                DateTimePickerVariant.LUMO_HELPER_ABOVE_FIELD);
+        dateTimePicker.removeThemeVariants(DateTimePickerVariant.HELPER_ABOVE);
         assertThemeAttribute("small");
     }
 
     @Test
-    public void addAndRemoveAllMultipleVariants_themeAttributeUpdated() {
+    void addAndRemoveAllMultipleVariants_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        dateTimePicker.addThemeVariants(DateTimePickerVariant.LUMO_SMALL);
-        dateTimePicker.addThemeVariants(
-                DateTimePickerVariant.LUMO_HELPER_ABOVE_FIELD);
+        dateTimePicker.addThemeVariants(DateTimePickerVariant.SMALL);
+        dateTimePicker.addThemeVariants(DateTimePickerVariant.HELPER_ABOVE);
         dateTimePicker.getThemeNames().clear();
         assertThemeAttribute(null);
     }
 
     @Test
-    public void addTwiceAndSeeIbce_themeAttributeUpdated() {
+    void addTwiceAndSeeOnce_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        dateTimePicker.addThemeVariants(DateTimePickerVariant.LUMO_SMALL);
-        dateTimePicker.addThemeVariants(DateTimePickerVariant.LUMO_SMALL);
+        dateTimePicker.addThemeVariants(DateTimePickerVariant.SMALL);
+        dateTimePicker.addThemeVariants(DateTimePickerVariant.SMALL);
         assertThemeAttribute("small");
     }
 
     private void assertThemeAttribute(String expected) {
         String actual = dateTimePicker.getThemeName();
-        assertEquals("Unexpected theme attribute on date time picker", expected,
-                actual);
+        assertEquals(expected, actual,
+                "Unexpected theme attribute on date time picker");
     }
 
     private void assertThemeAttributeContains(String expected) {
         String actual = dateTimePicker.getThemeName();
-        assertTrue("Theme attribute not present on date time picker",
-                actual.contains(expected));
+        assertTrue(actual.contains(expected),
+                "Theme attribute not present on date time picker");
     }
 }

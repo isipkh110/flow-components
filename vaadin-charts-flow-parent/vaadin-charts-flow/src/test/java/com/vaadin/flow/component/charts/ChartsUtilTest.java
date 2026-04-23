@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -10,17 +10,17 @@ package com.vaadin.flow.component.charts;
 
 import java.time.Instant;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.charts.util.Util;
 
-public class ChartsUtilTest {
+class ChartsUtilTest {
 
     @Test
-    public void getInstantFromUnixTimestamp() {
+    void getInstantFromUnixTimestamp() {
         long unixTimestampMillis = 1546300800000L;
         Instant instant = Util.toServerInstant(unixTimestampMillis);
-        Assert.assertEquals(unixTimestampMillis, instant.toEpochMilli());
+        Assertions.assertEquals(unixTimestampMillis, instant.toEpochMilli());
     }
 }

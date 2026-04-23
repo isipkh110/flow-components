@@ -4,12 +4,15 @@
     <parent>
         <groupId>com.vaadin</groupId>
         <artifactId>vaadin-details-flow-parent</artifactId>
-        <version>25.0-SNAPSHOT</version>
+        <version>25.2-SNAPSHOT</version>
     </parent>
     <artifactId>vaadin-details-flow</artifactId>
     <packaging>jar</packaging>
     <name>Vaadin Details</name>
     <description>Vaadin Details</description>
+    <properties>
+        <surefire.argLine>-javaagent:${org.mockito:mockito-core:jar}</surefire.argLine>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.vaadin</groupId>
@@ -40,11 +43,6 @@
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

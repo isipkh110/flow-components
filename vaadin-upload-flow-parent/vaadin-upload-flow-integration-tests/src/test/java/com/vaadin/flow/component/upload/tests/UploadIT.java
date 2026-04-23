@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -83,6 +83,20 @@ public class UploadIT extends AbstractUploadIT {
 
         Assert.assertEquals("File list should not contain files", 0,
                 getFileCount());
+
+        // Verify clear file list works multiple times
+        getUpload().upload(tempFile);
+
+        $("button").id("print-file-count").click();
+
+        Assert.assertEquals("File list should contain 1 file", 1,
+                getFileCount());
+
+        $("button").id("clear-file-list").click();
+        $("button").id("print-file-count").click();
+
+        Assert.assertEquals("File list should not contain files", 0,
+                getFileCount());
     }
 
     @Test
@@ -108,6 +122,8 @@ public class UploadIT extends AbstractUploadIT {
 
     @Test
     public void uploadInvalidFile_fileIsRejected() throws Exception {
+        clickElementWithJs("set-accept-file-type-txt");
+
         File invalidFile = createTempFile("pdf");
 
         getUpload().upload(invalidFile);
@@ -193,6 +209,108 @@ public class UploadIT extends AbstractUploadIT {
                 getFileCount());
     }
 
+    @Test
+    public void setAcceptedMimeTypes_wrongType_fileIsRejected()
+            throws Exception {
+        clickElementWithJs("use-upload-handler");
+        clickElementWithJs("set-accept-image");
+
+        var textFile = createTempFile("txt");
+
+        getUpload().upload(textFile);
+        Assert.assertTrue(
+                "Text file should be rejected when only image/* "
+                        + "is accepted",
+                eventsOutput.getText().contains("-rejected"));
+    }
+
+    @Test
+    public void setAcceptedMimeTypes_correctType_fileIsUploaded()
+            throws Exception {
+        clickElementWithJs("use-upload-handler");
+        clickElementWithJs("set-accept-text");
+
+        var textFile = createTempFile("txt");
+
+        getUpload().upload(textFile);
+        assertLogContains("Uploaded: " + textFile.getName());
+    }
+
+    @Test
+    public void setAcceptedFileExtensions_correctExtension_fileIsUploaded()
+            throws Exception {
+        clickElementWithJs("use-upload-handler");
+        clickElementWithJs("set-accept-ext-txt");
+
+        var textFile = createTempFile("txt");
+
+        getUpload().upload(textFile);
+        assertLogContains("Uploaded: " + textFile.getName());
+    }
+
+    @Test
+    public void setAcceptedFileExtensions_wrongExtension_fileIsRejected()
+            throws Exception {
+        clickElementWithJs("use-upload-handler");
+        clickElementWithJs("set-accept-ext-pdf");
+
+        var textFile = createTempFile("txt");
+
+        getUpload().upload(textFile);
+        Assert.assertTrue(
+                "Text file should be rejected when only .pdf " + "is accepted",
+                eventsOutput.getText().contains("-rejected"));
+    }
+
+    @Test
+    public void setMimeAndExtension_htmlFileWithMatchingMimeButWrongExtension_rejectedServerSide()
+            throws Exception {
+        // Configure MIME text/* AND extension .pdf
+        // Client-side accept="text/*,.pdf" allows .html (text/html matches
+        // text/*), but server-side AND logic rejects because .html != .pdf
+        clickElementWithJs("use-upload-handler");
+        clickElementWithJs("set-accept-text");
+        clickElementWithJs("set-accept-ext-pdf");
+
+        var htmlFile = createTempFile("html");
+
+        getUpload().upload(htmlFile, 0);
+        waitForUploadFileError();
+
+        Assert.assertFalse(
+                "HTML file should be rejected server-side when extension "
+                        + "doesn't match even though MIME type matches",
+                getLogText().contains("Uploaded:"));
+    }
+
+    @Test
+    public void setMimeAndExtension_htmlFileWithSpoofedPdfMimeType_rejectedServerSide() {
+        // Configure both application/pdf MIME type AND .pdf extension.
+        // With the old combined setAcceptedFileTypes("application/pdf", ".pdf")
+        // this file would have been accepted because the spoofed MIME type
+        // matched. With the new split API + AND logic, the extension check
+        // catches it.
+        clickElementWithJs("use-upload-handler");
+        clickElementWithJs("set-accept-mime-pdf");
+        clickElementWithJs("set-accept-ext-pdf");
+
+        // Create an HTML file with MIME type spoofed to application/pdf via JS.
+        // This simulates an attacker changing the Content-Type to bypass
+        // validation. The extension check should still block it.
+        executeScript("var file = new File("
+                + "['<html><body>Not a PDF</body></html>'], "
+                + "'spoofed.html', {type: 'application/pdf'});"
+                + "arguments[0]._addFile(file);", getUpload());
+
+        waitForUploadFileError();
+
+        Assert.assertFalse(
+                "HTML file with spoofed PDF MIME type should be rejected "
+                        + "server-side because extension .html doesn't "
+                        + "match .pdf",
+                getLogText().contains("Uploaded:"));
+    }
+
     private int getFileCount() {
         return Integer.parseInt($("div").id("file-count").getText());
     }
@@ -201,4 +319,20 @@ public class UploadIT extends AbstractUploadIT {
         return $(UploadElement.class).id("test-upload");
     }
 
+    private String getLogText() {
+        return findElement(By.id("log-area")).getText();
+    }
+
+    private void assertLogContains(String text) {
+        waitUntil(driver -> getLogText().contains(text), 5);
+    }
+
+    private void waitForUploadFileError() {
+        waitUntil(driver -> {
+            var error = executeScript(
+                    "return arguments[0].files[0] && arguments[0].files[0].error",
+                    getUpload());
+            return error != null && !error.toString().isEmpty();
+        }, 5);
+    }
 }

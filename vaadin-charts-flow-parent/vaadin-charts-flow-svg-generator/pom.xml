@@ -4,13 +4,20 @@
     <parent>
         <groupId>com.vaadin</groupId>
         <artifactId>vaadin-charts-flow-parent</artifactId>
-        <version>25.0-SNAPSHOT</version>
+        <version>25.2-SNAPSHOT</version>
     </parent>
     <artifactId>vaadin-charts-flow-svg-generator</artifactId>
     <packaging>jar</packaging>
     <name>Vaadin Charts SVG Generator API</name>
-
+    <properties>
+        <surefire.argLine>-javaagent:${org.mockito:mockito-core:jar}</surefire.argLine>
+    </properties>
     <dependencies>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>flow-build-tools</artifactId>
+            <classifier>shaded</classifier>
+        </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>flow-server</artifactId>
@@ -26,6 +33,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
@@ -36,7 +48,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.6.2</version>
+                <version>3.6.3</version>
                 <executions>
                     <execution>
                         <id>npm-install</id>

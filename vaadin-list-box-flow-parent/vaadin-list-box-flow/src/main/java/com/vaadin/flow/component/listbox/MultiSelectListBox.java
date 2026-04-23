@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -52,6 +52,8 @@ public class MultiSelectListBox<T>
         implements MultiSelect<MultiSelectListBox<T>, T> {
 
     private SelectionPreservationHandler<T> selectionPreservationHandler;
+
+    private boolean syncingPresentation;
 
     /**
      * Creates a new list box component with multi-selection.
@@ -203,12 +205,30 @@ public class MultiSelectListBox<T>
     }
 
     @Override
+    protected void setModelValue(Set<T> newModelValue, boolean fromClient) {
+        if (!syncingPresentation) {
+            super.setModelValue(newModelValue, fromClient);
+        }
+    }
+
+    @Override
     void handleDataChange(DataChangeEvent<T> dataChangeEvent) {
         if (dataChangeEvent instanceof DataChangeEvent.DataRefreshEvent) {
             super.handleDataChange(dataChangeEvent);
         } else {
             selectionPreservationHandler.handleDataChange(dataChangeEvent);
             rebuild();
+            // Re-sync the presentation value so the element property uses the
+            // correct indices matching the rebuilt items list.
+            // Suppress model updates during sync because the index-based
+            // presentation would corrupt the value when PRESERVE_ALL keeps
+            // removed items in the selection.
+            syncingPresentation = true;
+            try {
+                setPresentationValue(getValue());
+            } finally {
+                syncingPresentation = false;
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -22,6 +22,9 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.shared.HasThemeVariant;
+import com.vaadin.flow.dom.SignalBinding;
+import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.signals.Signal;
 
 /**
  * Progress Bar shows the completion status of a task or process. The progress
@@ -31,7 +34,7 @@ import com.vaadin.flow.component.shared.HasThemeVariant;
  * @author Vaadin Ltd.
  */
 @Tag("vaadin-progress-bar")
-@NpmPackage(value = "@vaadin/progress-bar", version = "25.0.0-beta5")
+@NpmPackage(value = "@vaadin/progress-bar", version = "25.2.0-alpha8")
 @JsModule("@vaadin/progress-bar/src/vaadin-progress-bar.js")
 public class ProgressBar extends Component
         implements HasSize, HasStyle, HasThemeVariant<ProgressBarVariant> {
@@ -85,6 +88,11 @@ public class ProgressBar extends Component
             throw new IllegalArgumentException(String.format(
                     "min ('%s') must be less than max ('%s')", min, max));
         }
+        if (min > value || value > max) {
+            throw new IllegalArgumentException(String.format(
+                    "value must be between min ('%s') and max ('%s')", min,
+                    max));
+        }
         setMin(min);
         setMax(max);
         setValue(value);
@@ -97,13 +105,6 @@ public class ProgressBar extends Component
      *            the double value to set
      */
     public void setValue(double value) {
-        double min = getMin();
-        double max = getMax();
-        if (min > value || value > max) {
-            throw new IllegalArgumentException(String.format(
-                    "value must be between min ('%s') and max ('%s')", min,
-                    max));
-        }
         getElement().setProperty("value", value);
     }
 
@@ -114,6 +115,34 @@ public class ProgressBar extends Component
      */
     public double getValue() {
         return getElement().getProperty("value", 0.0);
+    }
+
+    /**
+     * Binds the given signal to the value of the progressbar as a one-way
+     * binding so that the property is updated when the signal's value is
+     * updated.
+     * <p>
+     * The value is set immediately with the current signal value when the
+     * binding is created, and is kept synchronized with any subsequent signal
+     * value changes while the component is in attached state. When the
+     * component is in detached state, signal value changes have no effect.
+     * <p>
+     * While a signal is bound, any attempt to set the value manually through
+     * {@link #setValue(double)} throws a
+     * {@link com.vaadin.flow.signals.BindingActiveException}.
+     *
+     * @param signal
+     *            the signal to bind the value to, not {@code null}
+     * @return a {@link SignalBinding} that can be used to register
+     *         {@link SignalBinding#onChange(com.vaadin.flow.function.SerializableConsumer)
+     *         onChange} callbacks
+     * @see #setValue(double)
+     * @see com.vaadin.flow.dom.Element#bindProperty(String, Signal,
+     *      SerializableConsumer)
+     * @since 25.1
+     */
+    public SignalBinding<Double> bindValue(Signal<Double> signal) {
+        return getElement().bindProperty("value", signal, null);
     }
 
     /**
@@ -152,6 +181,58 @@ public class ProgressBar extends Component
      */
     public double getMin() {
         return getElement().getProperty("min", 0.0);
+    }
+
+    /**
+     * Binds the given signal to the minimum bound of the progressbar.
+     * <p>
+     * The minimum bound is set immediately with the current signal value when
+     * the binding is created, and is kept synchronized with any subsequent
+     * signal value changes while the component is in attached state. When the
+     * component is in detached state, signal value changes have no effect.
+     * <p>
+     * While a signal is bound, any attempt to set the minimum bound manually
+     * through {@link #setMin(double)} throws a
+     * {@link com.vaadin.flow.signals.BindingActiveException}.
+     *
+     * @param signal
+     *            the signal to bind the minimum bound to, not {@code null}
+     * @return a {@link SignalBinding} that can be used to register
+     *         {@link SignalBinding#onChange(com.vaadin.flow.function.SerializableConsumer)
+     *         onChange} callbacks
+     * @see #setMin(double)
+     * @see com.vaadin.flow.dom.Element#bindProperty(String, Signal,
+     *      SerializableConsumer)
+     * @since 25.1
+     */
+    public SignalBinding<Double> bindMin(Signal<Double> signal) {
+        return getElement().bindProperty("min", signal, null);
+    }
+
+    /**
+     * Binds the given signal to the maximum bound of the progressbar.
+     * <p>
+     * The maximum bound is set immediately with the current signal value when
+     * the binding is created, and is kept synchronized with any subsequent
+     * signal value changes while the component is in attached state. When the
+     * component is in detached state, signal value changes have no effect.
+     * <p>
+     * While a signal is bound, any attempt to set the maximum bound manually
+     * through {@link #setMax(double)} throws a
+     * {@link com.vaadin.flow.signals.BindingActiveException}.
+     *
+     * @param signal
+     *            the signal to bind the maximum bound to, not {@code null}
+     * @return a {@link SignalBinding} that can be used to register
+     *         {@link SignalBinding#onChange(com.vaadin.flow.function.SerializableConsumer)
+     *         onChange} callbacks
+     * @see #setMax(double)
+     * @see com.vaadin.flow.dom.Element#bindProperty(String, Signal,
+     *      SerializableConsumer)
+     * @since 25.1
+     */
+    public SignalBinding<Double> bindMax(Signal<Double> signal) {
+        return getElement().bindProperty("max", signal, null);
     }
 
     /**

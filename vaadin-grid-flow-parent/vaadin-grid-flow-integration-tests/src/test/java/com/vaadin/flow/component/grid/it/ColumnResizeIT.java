@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -60,8 +60,8 @@ public class ColumnResizeIT extends AbstractComponentIT {
                 By.id(ColumnResizeEventPage.WIDTHS_COLUMN_VALUES_MESSAGE));
         String[] colWidths = colWidthsMessage.getText().split("\\|");
 
-        Assert.assertEquals("Expected 3 column widths from the event.",
-                colWidths.length, 3);
+        Assert.assertEquals("Expected 3 column widths from the event.", 3,
+                colWidths.length);
 
         for (String colWidth : colWidths) {
             Assert.assertTrue(

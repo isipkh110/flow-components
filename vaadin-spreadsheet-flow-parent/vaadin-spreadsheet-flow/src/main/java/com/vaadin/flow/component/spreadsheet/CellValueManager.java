@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -19,14 +19,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.poi.hssf.model.InternalSheet;
@@ -242,6 +240,14 @@ public class CellValueManager implements Serializable {
                                 cell.getRowIndex() + 1);
                     }
 
+                }
+            }
+
+            if (formatter instanceof CustomDataFormatter) {
+                String color = ((CustomDataFormatter) formatter)
+                        .getCellTextColor(cell);
+                if (color != null) {
+                    cellData.textColor = color;
                 }
             }
 
@@ -1117,12 +1123,8 @@ public class CellValueManager implements Serializable {
         Workbook workbook = spreadsheet.getWorkbook();
         final Sheet activeSheet = workbook
                 .getSheetAt(workbook.getActiveSheetIndex());
-        Map<String, String> componentIDtoCellKeysMap = spreadsheet
-                .getComponentIDtoCellKeysMap();
-        @SuppressWarnings("unchecked")
-        final Collection<String> customComponentCells = (Collection<String>) (componentIDtoCellKeysMap == null
-                ? Collections.emptyList()
-                : componentIDtoCellKeysMap.values());
+        final Collection<String> customComponentCells = spreadsheet
+                .getComponentIDtoCellKeysMap().values();
         for (int r = firstRow - 1; r < lastRow; r++) {
             Row row = activeSheet.getRow(r);
             if (row != null && row.getLastCellNum() != -1

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,17 +17,17 @@ package com.vaadin.flow.component.combobox.validation;
 
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 
-public class MultiSelectComboBoxBinderValidationTest {
+class MultiSelectComboBoxBinderValidationTest {
     @Test
-    public void requiredFieldWithEmptyValue_validationFails() {
+    void requiredFieldWithEmptyValue_validationFails() {
         MultiSelectComboBox<String> comboBox = new MultiSelectComboBox<>("foo",
                 "bar", "baz");
 
@@ -36,12 +36,12 @@ public class MultiSelectComboBoxBinderValidationTest {
                 TestBean::setValues);
         binder.validate();
 
-        Assert.assertTrue(comboBox.isInvalid());
-        Assert.assertFalse(binder.isValid());
+        Assertions.assertTrue(comboBox.isInvalid());
+        Assertions.assertFalse(binder.isValid());
     }
 
     @Test
-    public void requiredFieldWithNonEmptyValue_validationPasses() {
+    void requiredFieldWithNonEmptyValue_validationPasses() {
         MultiSelectComboBox<String> comboBox = new MultiSelectComboBox<>("foo",
                 "bar", "baz");
         comboBox.setValue(Set.of("foo"));
@@ -51,12 +51,12 @@ public class MultiSelectComboBoxBinderValidationTest {
                 TestBean::setValues);
         binder.validate();
 
-        Assert.assertFalse(comboBox.isInvalid());
-        Assert.assertTrue(binder.isValid());
+        Assertions.assertFalse(comboBox.isInvalid());
+        Assertions.assertTrue(binder.isValid());
     }
 
     @Test
-    public void fieldWithCustomValidatorAndInvalidValue_validationFails() {
+    void fieldWithCustomValidatorAndInvalidValue_validationFails() {
         MultiSelectComboBox<String> comboBox = new MultiSelectComboBox<>("foo",
                 "bar", "baz");
         comboBox.setValue(Set.of("foo", "bar", "baz"));
@@ -70,12 +70,12 @@ public class MultiSelectComboBoxBinderValidationTest {
                 .bind(TestBean::getValues, TestBean::setValues);
         binder.validate();
 
-        Assert.assertTrue(comboBox.isInvalid());
-        Assert.assertFalse(binder.isValid());
+        Assertions.assertTrue(comboBox.isInvalid());
+        Assertions.assertFalse(binder.isValid());
     }
 
     @Test
-    public void fieldWithCustomValidatorAndValidValue_validationFails() {
+    void fieldWithCustomValidatorAndValidValue_validationFails() {
         MultiSelectComboBox<String> comboBox = new MultiSelectComboBox<>("foo",
                 "bar", "baz");
         comboBox.setValue(Set.of("bar", "baz"));
@@ -89,8 +89,8 @@ public class MultiSelectComboBoxBinderValidationTest {
                 .bind(TestBean::getValues, TestBean::setValues);
         binder.validate();
 
-        Assert.assertFalse(comboBox.isInvalid());
-        Assert.assertTrue(binder.isValid());
+        Assertions.assertFalse(comboBox.isInvalid());
+        Assertions.assertTrue(binder.isValid());
     }
 
     private static class TestBean {

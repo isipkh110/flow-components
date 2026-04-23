@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -8,10 +8,10 @@
  */
 package com.vaadin.flow.component.spreadsheet.tests;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.spreadsheet.DefaultHyperlinkCellClickHandler;
 import com.vaadin.flow.component.spreadsheet.Spreadsheet;
@@ -19,10 +19,10 @@ import com.vaadin.flow.component.spreadsheet.Spreadsheet;
 /**
  * Created by mtzukanov on 24.4.2017.
  */
-public class DefaultHyperlinkCellClickHandlerTests {
+class DefaultHyperlinkCellClickHandlerTests {
 
     @Test
-    public void hyperlinkParser_validStrings_correctParsed() {
+    void hyperlinkParser_validStrings_correctParsed() {
         final Spreadsheet ss = TestHelper.createSpreadsheet("hyper_links.xlsx");
         ss.setActiveSheetIndex(0);
 

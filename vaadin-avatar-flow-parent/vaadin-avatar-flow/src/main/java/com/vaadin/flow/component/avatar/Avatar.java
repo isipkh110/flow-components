@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -32,8 +32,6 @@ import com.vaadin.flow.server.StreamResourceRegistry;
 import com.vaadin.flow.server.streams.AbstractDownloadHandler;
 import com.vaadin.flow.server.streams.DownloadHandler;
 
-import tools.jackson.databind.node.ObjectNode;
-
 /**
  * Avatar is a graphical representation of an object or entity, for example a
  * person or an organisation.
@@ -58,7 +56,7 @@ import tools.jackson.databind.node.ObjectNode;
  */
 @Tag("vaadin-avatar")
 @JsModule("@vaadin/avatar/src/vaadin-avatar.js")
-@NpmPackage(value = "@vaadin/avatar", version = "25.0.0-beta5")
+@NpmPackage(value = "@vaadin/avatar", version = "25.2.0-alpha8")
 public class Avatar extends Component
         implements HasStyle, HasSize, HasThemeVariant<AvatarVariant> {
 
@@ -154,8 +152,7 @@ public class Avatar extends Component
     public void setI18n(AvatarI18n i18n) {
         this.i18n = Objects.requireNonNull(i18n,
                 "The i18n properties object should not be null");
-        ObjectNode i18nObject = JacksonUtils.beanToJson(i18n);
-        getElement().setPropertyJson("i18n", i18nObject);
+        getElement().setPropertyJson("i18n", JacksonUtils.beanToJson(i18n));
     }
 
     /**

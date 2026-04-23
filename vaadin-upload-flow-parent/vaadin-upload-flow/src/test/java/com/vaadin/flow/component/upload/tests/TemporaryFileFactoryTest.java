@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,20 +18,20 @@ package com.vaadin.flow.component.upload.tests;
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.upload.receivers.TemporaryFileFactory;
 
-public class TemporaryFileFactoryTest {
+class TemporaryFileFactoryTest {
 
     @Test
-    public void temporaryFileShouldNotContainFileName() throws IOException {
+    void temporaryFileShouldNotContainFileName() throws IOException {
         TemporaryFileFactory temporaryFileFactory = new TemporaryFileFactory();
         File testFile = temporaryFileFactory.createFile("test");
         String fileName = testFile.getName();
 
-        Assert.assertFalse("File name should not contain 'test'",
-                fileName.contains("test"));
+        Assertions.assertFalse(fileName.contains("test"),
+                "File name should not contain 'test'");
     }
 }

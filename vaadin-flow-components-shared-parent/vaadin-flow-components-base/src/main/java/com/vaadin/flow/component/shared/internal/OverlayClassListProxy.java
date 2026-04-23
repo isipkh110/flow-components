@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,7 +21,8 @@ import java.util.Iterator;
 
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.dom.ClassList;
-import com.vaadin.signals.Signal;
+import com.vaadin.flow.dom.SignalBinding;
+import com.vaadin.flow.signals.Signal;
 
 /**
  * Internal class that provides shared functionality for setting CSS class names
@@ -61,8 +62,9 @@ public class OverlayClassListProxy extends AbstractSet<String>
     }
 
     @Override
-    public void bind(String className, Signal<Boolean> signal) {
-        classList.bind(className, signal);
+    public SignalBinding<Boolean> bind(String className,
+            Signal<Boolean> signal) {
+        return classList.bind(className, signal);
     }
 
     private class IteratorProxy implements Serializable, Iterator<String> {

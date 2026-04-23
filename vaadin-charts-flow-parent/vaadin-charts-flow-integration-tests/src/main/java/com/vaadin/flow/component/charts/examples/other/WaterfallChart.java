@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -20,8 +20,10 @@ import com.vaadin.flow.component.charts.model.PlotOptionsWaterfall;
 import com.vaadin.flow.component.charts.model.VerticalAlign;
 import com.vaadin.flow.component.charts.model.WaterFallSum;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.router.Route;
 
 @CssImport(value = "./styles/WaterfallChart.css", themeFor = "vaadin-chart")
+@Route("vaadin-charts/other/waterfall-chart")
 public class WaterfallChart extends AbstractChartExample {
 
     @Override

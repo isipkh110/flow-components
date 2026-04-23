@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -23,8 +23,13 @@ import com.vaadin.flow.component.shared.ThemeVariant;
 public enum CheckboxGroupVariant implements ThemeVariant {
     LUMO_VERTICAL("vertical"),
     LUMO_HELPER_ABOVE_FIELD("helper-above-field"),
+    /**
+     * @deprecated Use {@link #HELPER_ABOVE} instead.
+     */
+    @Deprecated
     AURA_HELPER_ABOVE_FIELD("helper-above-field"),
-    AURA_HORIZONTAL("horizontal");
+    AURA_HORIZONTAL("horizontal"),
+    HELPER_ABOVE("helper-above-field");
 
     private final String variant;
 

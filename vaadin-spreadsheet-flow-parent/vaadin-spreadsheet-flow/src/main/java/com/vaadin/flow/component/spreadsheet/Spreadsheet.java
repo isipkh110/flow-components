@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -224,9 +224,9 @@ public class Spreadsheet extends Component
 
     private boolean sheetProtected;
 
-    private HashMap<String, String> cellKeysToEditorIdMap;
+    private HashMap<String, String> cellKeysToEditorIdMap = new HashMap<>();
 
-    private HashMap<String, String> componentIDtoCellKeysMap;
+    private HashMap<String, String> componentIDtoCellKeysMap = new HashMap<>();
 
     // Cell CSS key to link tooltip (usually same as address)
     private HashMap<String, String> hyperlinksTooltips;
@@ -252,6 +252,8 @@ public class Spreadsheet extends Component
     private Locale locale;
 
     private Registration spreadsheetHandlerRegistration;
+
+    private boolean insideCustomEditorCallback;
 
     int getCols() {
         return cols;
@@ -558,14 +560,22 @@ public class Spreadsheet extends Component
 
     private void setCellKeysToEditorIdMap(
             HashMap<String, String> cellKeysToEditorIdMap) {
-        this.cellKeysToEditorIdMap = cellKeysToEditorIdMap;
+        if (cellKeysToEditorIdMap == null) {
+            this.cellKeysToEditorIdMap.clear();
+        } else {
+            this.cellKeysToEditorIdMap = cellKeysToEditorIdMap;
+        }
         getElement().setProperty("cellKeysToEditorIdMap",
                 Serializer.serialize(cellKeysToEditorIdMap));
     }
 
     private void setComponentIDtoCellKeysMap(
             HashMap<String, String> componentIDtoCellKeysMap) {
-        this.componentIDtoCellKeysMap = componentIDtoCellKeysMap;
+        if (componentIDtoCellKeysMap == null) {
+            this.componentIDtoCellKeysMap.clear();
+        } else {
+            this.componentIDtoCellKeysMap = componentIDtoCellKeysMap;
+        }
         getElement().setProperty("componentIDtoCellKeysMap",
                 Serializer.serialize(componentIDtoCellKeysMap));
     }
@@ -1219,7 +1229,7 @@ public class Spreadsheet extends Component
 
     /**
      * Create the default Spreadsheet handler.
-     * 
+     *
      * @return SpreadsheetHandlerImpl
      */
     protected SpreadsheetHandlerImpl createDefaultHandler() {
@@ -1739,7 +1749,8 @@ public class Spreadsheet extends Component
             loadOrUpdateOverlays();
         }
 
-        if (componentIDtoCellKeysMap != null || cellKeysToEditorIdMap != null) {
+        if (!componentIDtoCellKeysMap.isEmpty()
+                || !cellKeysToEditorIdMap.isEmpty()) {
             // The node id's of custom components may no longer be valid after a
             // detach/attach. Remove all custom components and reload them (with
             // updated node id's).
@@ -3603,8 +3614,7 @@ public class Spreadsheet extends Component
                 handler.inline();
             }
             resources.put(key, resource.toString());
-            getElement().setProperty("resources",
-                    Serializer.serialize(new ArrayList<>(resources.keySet())));
+            getElement().executeJs("this.resources=$0", resources.keySet());
             getElement().setAttribute("resource-" + key,
                     new StreamResourceRegistry.ElementStreamResource(resource,
                             this.getElement()));
@@ -3749,6 +3759,13 @@ public class Spreadsheet extends Component
      * cell.
      */
     protected void loadCustomEditorOnSelectedCell() {
+        // Guard against reentrancy: if user code in onCustomEditorDisplayed
+        // calls refreshCells() -> updateMarkedCells() ->
+        // reloadVisibleCellContents() -> loadCells() ->
+        // loadCustomEditorOnSelectedCell(), skip the recursive call.
+        if (insideCustomEditorCallback) {
+            return;
+        }
         CellReference selectedCellReference = selectionManager
                 .getSelectedCellReference();
         if (selectedCellReference != null && customComponentFactory != null) {
@@ -3756,21 +3773,28 @@ public class Spreadsheet extends Component
             final int row = selectedCellReference.getRow();
             final String key = SpreadsheetUtil.toKey(col + 1, row + 1);
             var currentCellKeysToEditorIdMap = getCellKeysToEditorIdMap();
-            if (currentCellKeysToEditorIdMap != null
-                    && currentCellKeysToEditorIdMap.containsKey(key)
-                    && customComponents != null) {
+            if (currentCellKeysToEditorIdMap.containsKey(key)) {
                 String componentId = currentCellKeysToEditorIdMap.get(key);
                 for (Component c : customComponents) {
                     if (getComponentNodeId(c).equals(componentId)) {
-                        customComponentFactory.onCustomEditorDisplayed(
-                                getCell(row, col), row, col, this,
-                                getActiveSheet(), c);
+                        insideCustomEditorCallback = true;
+                        try {
+                            customComponentFactory.onCustomEditorDisplayed(
+                                    getCell(row, col), row, col, this,
+                                    getActiveSheet(), c);
+                        } catch (Exception e) {
+                            LOGGER.warn(
+                                    "Error in onCustomEditorDisplayed for cell ({}, {})",
+                                    col + 1, row + 1, e);
+                        } finally {
+                            insideCustomEditorCallback = false;
+                        }
                         return;
                     }
                 }
             }
-            setCellKeysToEditorIdMap(currentCellKeysToEditorIdMap == null ? null
-                    : new HashMap<>(currentCellKeysToEditorIdMap));
+            setCellKeysToEditorIdMap(
+                    new HashMap<>(currentCellKeysToEditorIdMap));
         }
     }
 
@@ -4287,7 +4311,8 @@ public class Spreadsheet extends Component
             overlayComponents.add(overlay.getComponent(true));
         }
 
-        if (overlay.getId() != null && overlay.getResourceHandler() != null) {
+        if (overlay.getId() != null && overlay.getResourceHandler() != null
+                && !resources.containsKey(overlay.getId())) {
             setResource(overlay.getId(), overlay.getResourceHandler());
         }
 
@@ -4590,27 +4615,10 @@ public class Spreadsheet extends Component
      */
     private void loadCustomComponents() {
         if (customComponentFactory != null) {
-            HashMap<String, String> _cellKeysToEditorIdMap = getCellKeysToEditorIdMap() != null
-                    ? new HashMap<>(getCellKeysToEditorIdMap())
-                    : null;
-            if (_cellKeysToEditorIdMap == null) {
-                _cellKeysToEditorIdMap = new HashMap<String, String>();
-            } else {
-                _cellKeysToEditorIdMap.clear();
-            }
-            setCellKeysToEditorIdMap(_cellKeysToEditorIdMap);
-            HashMap<String, String> _componentIDtoCellKeysMap = getComponentIDtoCellKeysMap() != null
-                    ? new HashMap<>(getComponentIDtoCellKeysMap())
-                    : null;
-            if (_componentIDtoCellKeysMap == null) {
-                _componentIDtoCellKeysMap = new HashMap<String, String>();
-            } else {
-                _componentIDtoCellKeysMap.clear();
-            }
-            setComponentIDtoCellKeysMap(_componentIDtoCellKeysMap);
-            if (customComponents == null) {
-                customComponents = new HashSet<Component>();
-            }
+            // Preserve custom editor mappings to maintain StateNode connections
+            HashMap<String, String> _cellKeysToEditorIdMap = new HashMap<>(
+                    getCellKeysToEditorIdMap());
+            HashMap<String, String> _componentIDtoCellKeysMap = new HashMap<>();
             HashSet<Component> newCustomComponents = new HashSet<Component>();
             Set<Integer> rowsWithComponents = new HashSet<Integer>();
             // iteration indexes 0-based
@@ -4618,31 +4626,45 @@ public class Spreadsheet extends Component
             int horizontalSplitPosition = getLastFrozenColumn();
             if (verticalSplitPosition > 0 && horizontalSplitPosition > 0) {
                 // top left pane
-                loadRangeComponents(newCustomComponents, rowsWithComponents, 1,
-                        1, verticalSplitPosition, horizontalSplitPosition);
+                loadRangeComponents(newCustomComponents, rowsWithComponents,
+                        _cellKeysToEditorIdMap, _componentIDtoCellKeysMap, 1, 1,
+                        verticalSplitPosition, horizontalSplitPosition);
             }
             if (verticalSplitPosition > 0) {
                 // top right pane
-                loadRangeComponents(newCustomComponents, rowsWithComponents, 1,
+                loadRangeComponents(newCustomComponents, rowsWithComponents,
+                        _cellKeysToEditorIdMap, _componentIDtoCellKeysMap, 1,
                         firstColumn, verticalSplitPosition, lastColumn);
             }
             if (horizontalSplitPosition > 0) {
                 // bottom left pane
                 loadRangeComponents(newCustomComponents, rowsWithComponents,
+                        _cellKeysToEditorIdMap, _componentIDtoCellKeysMap,
                         firstRow, 1, lastRow, horizontalSplitPosition);
             }
             loadRangeComponents(newCustomComponents, rowsWithComponents,
-                    firstRow, firstColumn, lastRow, lastColumn);
-            // unregister old
+                    _cellKeysToEditorIdMap, _componentIDtoCellKeysMap, firstRow,
+                    firstColumn, lastRow, lastColumn);
+
+            // Keep custom editors registered to preserve StateNode connections
             for (Iterator<Component> i = customComponents.iterator(); i
                     .hasNext();) {
                 Component c = i.next();
                 if (!newCustomComponents.contains(c)) {
-                    unRegisterCustomComponent(c);
-                    i.remove();
+                    String nodeId = getComponentNodeId(c);
+                    if (_cellKeysToEditorIdMap.containsValue(nodeId)) {
+                        newCustomComponents.add(c);
+                    } else {
+                        unRegisterCustomComponent(c);
+                        _componentIDtoCellKeysMap.remove(nodeId);
+                        i.remove();
+                    }
                 }
             }
             customComponents = newCustomComponents;
+
+            setCellKeysToEditorIdMap(_cellKeysToEditorIdMap);
+            setComponentIDtoCellKeysMap(_componentIDtoCellKeysMap);
 
             if (!rowsWithComponents.isEmpty()) {
                 handleRowSizes(rowsWithComponents);
@@ -4651,7 +4673,7 @@ public class Spreadsheet extends Component
         } else {
             setCellKeysToEditorIdMap(null);
             setComponentIDtoCellKeysMap(null);
-            if (customComponents != null && !customComponents.isEmpty()) {
+            if (!customComponents.isEmpty()) {
                 for (Component c : customComponents) {
                     unRegisterCustomComponent(c);
                 }
@@ -4662,10 +4684,10 @@ public class Spreadsheet extends Component
     }
 
     void loadRangeComponents(HashSet<Component> newCustomComponents,
-            Set<Integer> rowsWithComponents, int row1, int col1, int row2,
-            int col2) {
-        HashMap<String, String> _componentIDtoCellKeysMap = getComponentIDtoCellKeysMap();
-        HashMap<String, String> _cellKeysToEditorIdMap = getCellKeysToEditorIdMap();
+            Set<Integer> rowsWithComponents,
+            HashMap<String, String> cellKeysToEditorIdMap,
+            HashMap<String, String> componentIDtoCellKeysMap, int row1,
+            int col1, int row2, int col2) {
         for (int r = row1 - 1; r < row2; r++) {
             final Row row = getActiveSheet().getRow(r);
             for (int c = col1 - 1; c < col2; c++) {
@@ -4678,38 +4700,45 @@ public class Spreadsheet extends Component
                     if (row != null) {
                         cell = row.getCell(c);
                     }
-                    // check if the cell has a custom component
-                    Component customComponent = customComponentFactory
-                            .getCustomComponentForCell(cell, r, c, this,
-                                    getActiveSheet());
-                    if (customComponent != null) {
-                        final String key = SpreadsheetUtil.toKey(c + 1, r + 1);
-                        if (!customComponents.contains(customComponent)) {
-                            registerCustomComponent(customComponent);
-                        }
-                        _componentIDtoCellKeysMap
-                                .put(getComponentNodeId(customComponent), key);
-                        newCustomComponents.add(customComponent);
-                        rowsWithComponents.add(r);
-                    } else if (!isCellLocked(new CellAddress(r, c))) {
-                        // no custom component and not locked, check if
-                        // the cell has a custom editor
-                        Component customEditor = customComponentFactory
-                                .getCustomEditorForCell(cell, r, c, this,
+                    try {
+                        // check if the cell has a custom component
+                        Component customComponent = customComponentFactory
+                                .getCustomComponentForCell(cell, r, c, this,
                                         getActiveSheet());
-                        if (customEditor != null) {
+                        if (customComponent != null) {
                             final String key = SpreadsheetUtil.toKey(c + 1,
                                     r + 1);
-                            if (!newCustomComponents.contains(customEditor)
-                                    && !customComponents
-                                            .contains(customEditor)) {
-                                registerCustomComponent(customEditor);
+                            if (!customComponents.contains(customComponent)) {
+                                registerCustomComponent(customComponent);
                             }
-                            _cellKeysToEditorIdMap.put(key,
-                                    getComponentNodeId(customEditor));
-                            newCustomComponents.add(customEditor);
+                            componentIDtoCellKeysMap.put(
+                                    getComponentNodeId(customComponent), key);
+                            newCustomComponents.add(customComponent);
                             rowsWithComponents.add(r);
+                        } else if (!isCellLocked(new CellAddress(r, c))) {
+                            // no custom component and not locked, check if
+                            // the cell has a custom editor
+                            Component customEditor = customComponentFactory
+                                    .getCustomEditorForCell(cell, r, c, this,
+                                            getActiveSheet());
+                            if (customEditor != null) {
+                                final String key = SpreadsheetUtil.toKey(c + 1,
+                                        r + 1);
+                                if (!newCustomComponents.contains(customEditor)
+                                        && !customComponents
+                                                .contains(customEditor)) {
+                                    registerCustomComponent(customEditor);
+                                }
+                                cellKeysToEditorIdMap.put(key,
+                                        getComponentNodeId(customEditor));
+                                newCustomComponents.add(customEditor);
+                                rowsWithComponents.add(r);
+                            }
                         }
+                    } catch (Exception e) {
+                        LOGGER.warn(
+                                "Error loading custom component/editor for cell ({}, {})",
+                                c + 1, r + 1, e);
                     }
                 }
                 if (region != null) {
@@ -4717,8 +4746,6 @@ public class Spreadsheet extends Component
                 }
             }
         }
-        setCellKeysToEditorIdMap(_cellKeysToEditorIdMap);
-        setComponentIDtoCellKeysMap(_componentIDtoCellKeysMap);
     }
 
     private String getComponentNodeId(Component component) {
@@ -4840,7 +4867,7 @@ public class Spreadsheet extends Component
             loadCustomEditorOnSelectedCell();
         } else {
             setCellKeysToEditorIdMap(null);
-            if (customComponents != null && !customComponents.isEmpty()) {
+            if (!customComponents.isEmpty()) {
                 for (Component c : customComponents) {
                     unRegisterCustomComponent(c);
                 }

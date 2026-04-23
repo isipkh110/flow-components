@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,23 +21,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.GridArrayUpdater;
 import com.vaadin.flow.data.provider.ArrayUpdater.Update;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
-import com.vaadin.tests.dataprovider.MockUI;
+import com.vaadin.tests.MockUIExtension;
 
 import tools.jackson.databind.JsonNode;
 
-public class TreeGridSetViewportRangeByIndexPathTest {
-    private MockUI ui;
+class TreeGridSetViewportRangeByIndexPathTest {
+    @RegisterExtension
+    MockUIExtension ui = new MockUIExtension();
 
     private GridArrayUpdater arrayUpdater = Mockito
             .mock(GridArrayUpdater.class);
@@ -51,8 +51,8 @@ public class TreeGridSetViewportRangeByIndexPathTest {
         }
     };
 
-    @Before
-    public void init() {
+    @BeforeEach
+    void init() {
         Mockito.when(arrayUpdater.startUpdate(Mockito.anyInt()))
                 .thenReturn(arrayUpdate);
 
@@ -69,20 +69,14 @@ public class TreeGridSetViewportRangeByIndexPathTest {
                 (item, jsonObject) -> jsonObject.put("name", item));
         treeGrid.setPageSize(5);
 
-        ui = new MockUI();
         ui.add(treeGrid);
 
-        fakeClientCommunication();
+        ui.fakeClientCommunication();
         Mockito.reset(arrayUpdate);
     }
 
-    @After
-    public void tearDown() {
-        UI.setCurrent(null);
-    }
-
     @Test
-    public void setViewportRangeByIndexPath_correctFlatIndexReturned() {
+    void setViewportRangeByIndexPath_correctFlatIndexReturned() {
         treeGrid.expand("Item 50", "Item 50-0", "Item 50-1", "Item 50-2");
 
         int SIZE_50 = 3;
@@ -90,108 +84,109 @@ public class TreeGridSetViewportRangeByIndexPathTest {
         int SIZE_50_1 = 3;
         int SIZE_50_2 = 3;
 
-        Assert.assertEquals(0,
+        Assertions.assertEquals(0,
                 treeGrid.setViewportRangeByIndexPath(new int[] { 0 }, 5));
 
         treeGrid.getDataCommunicator().reset();
 
-        Assert.assertEquals(40,
+        Assertions.assertEquals(40,
                 treeGrid.setViewportRangeByIndexPath(new int[] { 40 }, 5));
 
         treeGrid.getDataCommunicator().reset();
 
-        Assert.assertEquals(53 + SIZE_50_0, treeGrid
+        Assertions.assertEquals(53 + SIZE_50_0, treeGrid
                 .setViewportRangeByIndexPath(new int[] { 50, 1, 0 }, 5));
 
         treeGrid.getDataCommunicator().reset();
 
-        Assert.assertEquals(54 + SIZE_50_0 + SIZE_50_1, treeGrid
+        Assertions.assertEquals(54 + SIZE_50_0 + SIZE_50_1, treeGrid
                 .setViewportRangeByIndexPath(new int[] { 50, 2, 0 }, 5));
 
         treeGrid.getDataCommunicator().reset();
 
-        Assert.assertEquals(59 + SIZE_50 + SIZE_50_2,
+        Assertions.assertEquals(59 + SIZE_50 + SIZE_50_2,
                 treeGrid.setViewportRangeByIndexPath(new int[] { 59 }, 5));
 
         treeGrid.getDataCommunicator().reset();
 
-        Assert.assertEquals(99,
+        Assertions.assertEquals(99,
                 treeGrid.setViewportRangeByIndexPath(new int[] { 99 }, 5));
     }
 
     @Test
-    public void pathWithTooLargeIndexes_setViewportRangeByIndexPath_correctFlatIndexReturned() {
+    void pathWithTooLargeIndexes_setViewportRangeByIndexPath_correctFlatIndexReturned() {
         treeGrid.expand("Item 99", "Item 99-2");
 
         int SIZE_99 = 3;
         int SIZE_99_2 = 3;
 
-        Assert.assertEquals(99 + SIZE_99 + SIZE_99_2,
+        Assertions.assertEquals(99 + SIZE_99 + SIZE_99_2,
                 treeGrid.setViewportRangeByIndexPath(
                         new int[] { 1000, 1000, 1000 }, 5));
     }
 
     @Test
-    public void pathWithNegativeIndexes_setViewportRangeByIndexPath_correctFlatIndexReturned() {
+    void pathWithNegativeIndexes_setViewportRangeByIndexPath_correctFlatIndexReturned() {
         treeGrid.expand("Item 98", "Item 98-2", "Item 99", "Item 99-1");
 
         int SIZE_98 = 3;
         int SIZE_98_2 = 3;
         int SIZE_99_1 = 3;
 
-        Assert.assertEquals(99 + SIZE_98 + SIZE_98_2,
+        Assertions.assertEquals(99 + SIZE_98 + SIZE_98_2,
                 treeGrid.setViewportRangeByIndexPath(new int[] { -1 }, 5));
 
         treeGrid.getDataCommunicator().reset();
 
-        Assert.assertEquals(99 + SIZE_98 + SIZE_98_2 + 2,
+        Assertions.assertEquals(99 + SIZE_98 + SIZE_98_2 + 2,
                 treeGrid.setViewportRangeByIndexPath(new int[] { -1, -2 }, 5));
 
         treeGrid.getDataCommunicator().reset();
 
-        Assert.assertEquals(99 + SIZE_98 + SIZE_98_2 + 2 + SIZE_99_1, treeGrid
-                .setViewportRangeByIndexPath(new int[] { -1, -2, -1 }, 5));
+        Assertions.assertEquals(99 + SIZE_98 + SIZE_98_2 + 2 + SIZE_99_1,
+                treeGrid.setViewportRangeByIndexPath(new int[] { -1, -2, -1 },
+                        5));
     }
 
     @Test
-    public void setViewportRangeByIndexPath_viewportRangeReturned() {
+    void setViewportRangeByIndexPath_viewportRangeReturned() {
         treeGrid.expandRecursively(treeGrid.getTreeData().getRootItems(), 1);
 
         treeGrid.setViewportRangeByIndexPath(new int[] { 0 }, 5);
-        fakeClientCommunication();
+        ui.fakeClientCommunication();
         assertViewportRange(10, "Item 0", "Item 0-2");
 
         treeGrid.getDataCommunicator().reset();
 
         treeGrid.setViewportRangeByIndexPath(new int[] { 50, 0, 0 }, 5);
-        fakeClientCommunication();
+        ui.fakeClientCommunication();
         assertViewportRange(15, "Item 49-2", "Item 50-2-0");
 
         treeGrid.getDataCommunicator().reset();
 
         treeGrid.setViewportRangeByIndexPath(new int[] { -1, -1, -1 }, 5);
-        fakeClientCommunication();
+        ui.fakeClientCommunication();
         assertViewportRange(7, "Item 99-1-0", "Item 99-2-2");
     }
 
     @Test
-    public void setSmallPageSize_setViewportRangeByIndexPath_throwsWhenPaddingExceedsLimit() {
+    void setSmallPageSize_setViewportRangeByIndexPath_throwsWhenPaddingExceedsLimit() {
         treeGrid.setPageSize(20);
 
         treeGrid.setViewportRangeByIndexPath(new int[] { 0 }, 500);
 
-        Assert.assertThrows(IllegalArgumentException.class, () -> {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
             treeGrid.setViewportRangeByIndexPath(new int[] { 0 }, 1001);
         });
     }
 
     @Test
-    public void setLargePageSize_setViewportRangeByIndexPath_throwsWhenPaddingExceedsLimit() {
+    void setLargePageSize_setViewportRangeByIndexPath_throwsWhenPaddingExceedsLimit() {
         treeGrid.setPageSize(80);
 
         treeGrid.setViewportRangeByIndexPath(new int[] { 0 }, 800);
 
-        Assert.assertThrows(IllegalArgumentException.class, () -> {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
             treeGrid.setViewportRangeByIndexPath(new int[] { 0 }, 800 * 2);
         });
     }
@@ -212,16 +207,10 @@ public class TreeGridSetViewportRangeByIndexPathTest {
     private void assertViewportRange(int size, String firstItem,
             String lastItem) {
         LinkedList<String> viewportRange = captureViewportRange();
-        Assert.assertEquals(size, viewportRange.size());
-        Assert.assertEquals(firstItem, viewportRange.getFirst());
-        Assert.assertEquals(lastItem, viewportRange.getLast());
+        Assertions.assertEquals(size, viewportRange.size());
+        Assertions.assertEquals(firstItem, viewportRange.getFirst());
+        Assertions.assertEquals(lastItem, viewportRange.getLast());
         Mockito.reset(arrayUpdate);
-    }
-
-    private void fakeClientCommunication() {
-        ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
-        ui.getInternals().getStateTree().collectChanges(ignore -> {
-        });
     }
 
     private List<String> generateItems(String parentItem, int count) {

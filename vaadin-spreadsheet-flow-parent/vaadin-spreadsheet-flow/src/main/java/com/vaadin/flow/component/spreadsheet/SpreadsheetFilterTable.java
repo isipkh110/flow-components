@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -215,7 +215,7 @@ public class SpreadsheetFilterTable extends SpreadsheetTable {
         button.setDisableOnClick(true);
         button.setEnabled(false);
         button.addThemeVariants(ButtonVariant.LUMO_TERTIARY,
-                ButtonVariant.LUMO_SMALL);
+                ButtonVariant.SMALL);
         button.addClassName(CLEAR_FILTERS_BUTTON_CLASSNAME);
         button.addClickListener(event -> clearAllFilters());
         return button;

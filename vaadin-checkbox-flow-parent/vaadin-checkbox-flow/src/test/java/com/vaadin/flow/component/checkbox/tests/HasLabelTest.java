@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,25 +15,25 @@
  */
 package com.vaadin.flow.component.checkbox.tests;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.HasLabel;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 
-public class HasLabelTest {
+class HasLabelTest {
 
     @Test
-    public void checkbox() {
+    void checkbox() {
         Checkbox c = new Checkbox();
-        Assert.assertTrue(c instanceof HasLabel);
+        Assertions.assertTrue(c instanceof HasLabel);
     }
 
     @Test
-    public void checkboxGroup() {
+    void checkboxGroup() {
         CheckboxGroup<String> c = new CheckboxGroup<>();
-        Assert.assertTrue(c instanceof HasLabel);
+        Assertions.assertTrue(c instanceof HasLabel);
     }
 
 }

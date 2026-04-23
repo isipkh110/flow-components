@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -25,8 +25,10 @@ import com.vaadin.flow.component.charts.model.PlotOptionsGantt;
 import com.vaadin.flow.component.charts.model.Tooltip;
 import com.vaadin.flow.component.charts.model.XAxis;
 import com.vaadin.flow.component.charts.model.YAxis;
+import com.vaadin.flow.router.Route;
 
 @SuppressWarnings("unused")
+@Route("vaadin-charts/gantt/gantt-custom-data-labels")
 public class GanttCustomDataLabels extends AbstractChartExample {
 
     private static final Instant TODAY = Instant.now()

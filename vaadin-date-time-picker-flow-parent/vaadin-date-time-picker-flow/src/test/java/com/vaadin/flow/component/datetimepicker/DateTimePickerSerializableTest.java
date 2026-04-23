@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,22 +15,8 @@
  */
 package com.vaadin.flow.component.datetimepicker;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.testutil.ClassesSerializableTest;
 
-public class DateTimePickerSerializableTest extends ClassesSerializableTest {
+class DateTimePickerSerializableTest extends ClassesSerializableTest {
 
-    private static final UI FAKE_UI = new UI();
-
-    @Override
-    protected void resetThreadLocals() {
-        super.resetThreadLocals();
-        UI.setCurrent(null);
-    }
-
-    @Override
-    protected void setupThreadLocals() {
-        super.setupThreadLocals();
-        UI.setCurrent(FAKE_UI);
-    }
 }

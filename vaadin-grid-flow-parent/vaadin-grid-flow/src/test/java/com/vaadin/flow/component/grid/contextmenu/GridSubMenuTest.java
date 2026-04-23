@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,14 +15,14 @@
  */
 package com.vaadin.flow.component.grid.contextmenu;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.contextmenu.MenuManager;
 import com.vaadin.flow.function.SerializableRunnable;
 
-public class GridSubMenuTest {
+class GridSubMenuTest {
 
     private MenuManager menuManager = Mockito.mock(MenuManager.class);
 
@@ -40,7 +40,7 @@ public class GridSubMenuTest {
     }
 
     @Test
-    public void addTextItem_delegateToMenuManager() {
+    void addTextItem_delegateToMenuManager() {
         TestContextMenu menu = new TestContextMenu();
         menu.addItem("foo", null);
 
@@ -48,7 +48,7 @@ public class GridSubMenuTest {
     }
 
     @Test
-    public void addComponentItem_delegateToMenuManager() {
+    void addComponentItem_delegateToMenuManager() {
         TestContextMenu menu = new TestContextMenu();
         Component component = Mockito.mock(Component.class);
         menu.addItem(component, null);

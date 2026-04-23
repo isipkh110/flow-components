@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -40,7 +40,7 @@ public class MergedCellOverflowIT extends AbstractSpreadsheetIT {
         String cellText = "This shouldn't overflow outside of merged area";
 
         SheetCellElement b2 = spreadsheet.getCellAt("B2");
-        Assert.assertEquals(b2.getValue(), cellText);
+        Assert.assertEquals(cellText, b2.getValue());
 
         String cellSelector = String.format(".col%d.row%d.cell", 2, 2);
         List<WebElement> elements = findElementsInShadowRoot(
@@ -58,10 +58,10 @@ public class MergedCellOverflowIT extends AbstractSpreadsheetIT {
         SheetCellElement cellElement = underlyingCell
                 .wrap(SheetCellElement.class);
 
-        Assert.assertEquals(cellElement.getValue(), cellText);
+        Assert.assertEquals(cellText, cellElement.getValue());
 
         String overFlow = cellElement.getCssValue("overflow");
-        Assert.assertNotEquals(overFlow, "visible");
+        Assert.assertNotEquals("visible", overFlow);
     }
 
 }

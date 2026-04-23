@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -23,8 +23,10 @@ import com.vaadin.flow.component.charts.model.SeriesTooltip;
 import com.vaadin.flow.component.charts.model.TickPosition;
 import com.vaadin.flow.component.charts.model.YAxis;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.router.Route;
 
 @CssImport(value = "./styles/Gauge.css", themeFor = "vaadin-chart")
+@Route("vaadin-charts/other/gauge")
 public class Gauge extends AbstractChartExample {
 
     @Override

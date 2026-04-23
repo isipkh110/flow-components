@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -16,8 +16,10 @@ import com.vaadin.flow.component.charts.model.Configuration;
 import com.vaadin.flow.component.charts.model.Crosshair;
 import com.vaadin.flow.component.charts.model.RangeSeries;
 import com.vaadin.flow.component.charts.model.Tooltip;
+import com.vaadin.flow.router.Route;
 
 @SuppressWarnings("serial")
+@Route("vaadin-charts/other/area-range")
 public class AreaRange extends AbstractChartExample {
 
     protected Chart chart;

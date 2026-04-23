@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -16,19 +16,14 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
 import com.vaadin.flow.component.charts.events.PointLegendItemClickEvent;
-import com.vaadin.flow.component.charts.examples.AbstractChartExample;
-import com.vaadin.flow.component.charts.examples.pie.PieWithLegendEvents;
+import com.vaadin.flow.testutil.TestPath;
 import com.vaadin.tests.elements.SpanElement;
 
-public class PieWithLegendEventsIT extends AbstractTBTest {
+@TestPath("vaadin-charts/pie/pie-with-legend-events")
+public class PieWithLegendEventsIT extends AbstractChartIT {
 
     private SpanElement lastEvent;
     private SpanElement eventDetails;
-
-    @Override
-    protected Class<? extends AbstractChartExample> getView() {
-        return PieWithLegendEvents.class;
-    }
 
     @Before
     public void init() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,11 +20,11 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.testutil.ClassesSerializableTest;
 
-public class ComboboxSerializableTest extends ClassesSerializableTest {
+class ComboboxSerializableTest extends ClassesSerializableTest {
 
     @Override
     protected Stream<String> getExcludedPatterns() {
@@ -33,8 +33,7 @@ public class ComboboxSerializableTest extends ClassesSerializableTest {
     }
 
     @Test
-    public void setItems_callSetViewportRange_comboBoxSerializable()
-            throws Throwable {
+    void setItems_callSetViewportRange_comboBoxSerializable() throws Throwable {
         final ComboBox<String> comboBox = new ComboBox<>();
         comboBox.setItems(List.of("Item 1", "Item 2"));
         callSetViewportRange(comboBox, 0, 2, "");

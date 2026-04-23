@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,22 +19,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import com.vaadin.tests.dataprovider.MockUI;
+import com.vaadin.tests.MockUIExtension;
 
-public class MultiSelectComboBoxFilteringTest {
-    private MockUI ui;
-
-    @Before
-    public void setUp() {
-        ui = new MockUI();
-    }
+class MultiSelectComboBoxFilteringTest {
+    @RegisterExtension
+    MockUIExtension ui = new MockUIExtension();
 
     @Test
-    public void filter_addAndRefreshItems_doesNotToggleClientSideFiltering() {
+    void filter_addAndRefreshItems_doesNotToggleClientSideFiltering() {
         MultiSelectComboBox<String> comboBox = new MultiSelectComboBox<>();
         ui.add(comboBox);
 
@@ -43,21 +39,15 @@ public class MultiSelectComboBoxFilteringTest {
         comboBox.setItems(items);
 
         comboBox.getDataController().setViewportRange(0, 50, "foo");
-        fakeClientCommunication();
-        Assert.assertFalse((Boolean) comboBox.getElement()
+        ui.fakeClientCommunication();
+        Assertions.assertFalse((Boolean) comboBox.getElement()
                 .getPropertyRaw("_clientSideFilter"));
 
         items.add("foo");
         comboBox.getDataProvider().refreshAll();
         comboBox.getDataController().setViewportRange(0, 50, "");
-        fakeClientCommunication();
-        Assert.assertFalse((Boolean) comboBox.getElement()
+        ui.fakeClientCommunication();
+        Assertions.assertFalse((Boolean) comboBox.getElement()
                 .getPropertyRaw("_clientSideFilter"));
-    }
-
-    private void fakeClientCommunication() {
-        ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
-        ui.getInternals().getStateTree().collectChanges(ignore -> {
-        });
     }
 }

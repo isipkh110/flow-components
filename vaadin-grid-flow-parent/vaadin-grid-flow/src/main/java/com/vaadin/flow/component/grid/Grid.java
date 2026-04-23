@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -129,6 +129,7 @@ import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.internal.JacksonSerializer;
 import com.vaadin.flow.internal.JacksonUtils;
 import com.vaadin.flow.internal.ReflectTools;
+import com.vaadin.flow.internal.StateTree;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 
@@ -212,8 +213,8 @@ import tools.jackson.databind.node.ObjectNode;
  *
  */
 @Tag("vaadin-grid")
-@NpmPackage(value = "@vaadin/grid", version = "25.0.0-beta5")
-@NpmPackage(value = "@vaadin/tooltip", version = "25.0.0-beta5")
+@NpmPackage(value = "@vaadin/grid", version = "25.2.0-alpha8")
+@NpmPackage(value = "@vaadin/tooltip", version = "25.2.0-alpha8")
 @JsModule("@vaadin/grid/src/vaadin-grid.js")
 @JsModule("@vaadin/grid/src/vaadin-grid-column.js")
 @JsModule("@vaadin/grid/src/vaadin-grid-sorter.js")
@@ -555,7 +556,7 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
                         .orElse(null);
             }
 
-            getGrid().getDataCommunicator().reset();
+            getGrid().refreshViewport();
             return this;
         }
 
@@ -1046,7 +1047,7 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
             Objects.requireNonNull(partNameGenerator,
                     "Part name generator can not be null");
             this.partNameGenerator = partNameGenerator;
-            getGrid().getDataCommunicator().reset();
+            getGrid().refreshViewport();
             return this;
         }
 
@@ -1067,7 +1068,7 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
                     "Tooltip generator can not be null");
 
             grid.addTooltipElementToTooltipSlot();
-            getGrid().getDataCommunicator().reset();
+            getGrid().refreshViewport();
             return this;
         }
 
@@ -1378,10 +1379,8 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
     private SerializableSupplier<Editor<T>> editorFactory = this::createEditor;
 
     private SerializableFunction<T, String> partNameGenerator = item -> null;
-    private SerializablePredicate<T> defaultDropFilter = item -> true;
-    private SerializablePredicate<T> defaultDragFilter = item -> true;
-    private SerializablePredicate<T> dropFilter = defaultDropFilter;
-    private SerializablePredicate<T> dragFilter = defaultDragFilter;
+    private SerializablePredicate<T> dropFilter = item -> true;
+    private SerializablePredicate<T> dragFilter = item -> true;
     private Map<String, SerializableFunction<T, String>> dragDataGenerators = new HashMap<>();
 
     private Registration dataProviderChangeRegistration;
@@ -1395,6 +1394,8 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
     private static final String EMPTY_STATE_SLOT = "empty-state";
     private Component emptyStateComponent;
     private String emptyStateText;
+
+    private StateTree.ExecutionRegistration pendingScrollRegistration;
 
     /**
      * Creates a new instance, with page size of 50.
@@ -1741,10 +1742,8 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
         protected DataCommunicator<T> build(Element element,
                 CompositeDataGenerator<T> dataGenerator, U arrayUpdater,
                 SerializableSupplier<ValueProvider<T, String>> uniqueKeyProviderSupplier) {
-            return new DataCommunicator<>(
-                    dataGenerator, arrayUpdater, data -> element
-                            .callJsFunction("$connector.updateFlatData", data),
-                    element.getNode());
+            return new GridDataCommunicator<>(element, dataGenerator,
+                    arrayUpdater);
         }
     }
 
@@ -2016,7 +2015,7 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
         }
         getElement().appendChild(current.getElement());
 
-        getDataCommunicator().reset();
+        refreshViewport();
 
         return column;
     }
@@ -3310,6 +3309,26 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
     }
 
     /**
+     * Schedules a scroll-related action to be executed before the next client
+     * response. Cancels any previously scheduled scroll action, ensuring that
+     * only the last scroll call takes effect.
+     *
+     * @param action
+     *            the scroll action to execute
+     */
+    protected void scheduleScrollExecution(SerializableRunnable action) {
+        getElement().getNode().runWhenAttached(ui -> {
+            if (pendingScrollRegistration != null) {
+                pendingScrollRegistration.remove();
+            }
+            pendingScrollRegistration = ui.beforeClientResponse(this, ctx -> {
+                action.run();
+                pendingScrollRegistration = null;
+            });
+        });
+    }
+
+    /**
      * Adds a selection listener to the current selection model.
      * <p>
      * This is a shorthand for
@@ -4321,7 +4340,7 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
         Objects.requireNonNull(partNameGenerator,
                 "Part name generator can not be null");
         this.partNameGenerator = partNameGenerator;
-        getDataCommunicator().reset();
+        refreshViewport();
     }
 
     /**
@@ -4622,15 +4641,7 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
     public void setDropMode(GridDropMode dropMode) {
         getElement().setProperty("dropMode",
                 dropMode == null ? null : dropMode.getClientName());
-
-        // Do not reset the data communicator if no filters are applied in order
-        // to avoid unnecessary scroll position reset. This can be removed when
-        // Flow will provide a way to request refresh for only items that
-        // are in the viewport.
-        if (dragFilter != defaultDragFilter
-                || dropFilter != defaultDropFilter) {
-            getDataCommunicator().reset();
-        }
+        refreshViewport();
     }
 
     /**
@@ -4655,15 +4666,7 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
      */
     public void setRowsDraggable(boolean rowsDraggable) {
         getElement().setProperty("rowsDraggable", rowsDraggable);
-
-        // Do not reset the data communicator if no filters are applied in order
-        // to avoid unnecessary scroll position reset. This can be removed when
-        // Flow will provide a way to request refresh for only items that
-        // are in the viewport.
-        if (dragFilter != defaultDragFilter
-                || dropFilter != defaultDropFilter) {
-            getDataCommunicator().reset();
-        }
+        refreshViewport();
     }
 
     /**
@@ -4719,7 +4722,7 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
     public void setDropFilter(SerializablePredicate<T> dropFilter) {
         Objects.requireNonNull(dropFilter, "Drop filter can not be null");
         this.dropFilter = dropFilter;
-        getDataCommunicator().reset();
+        refreshViewport();
     }
 
     /**
@@ -4739,7 +4742,7 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
     public void setDragFilter(SerializablePredicate<T> dragFilter) {
         Objects.requireNonNull(dragFilter, "Drag filter can not be null");
         this.dragFilter = dragFilter;
-        getDataCommunicator().reset();
+        refreshViewport();
     }
 
     /**
@@ -4765,7 +4768,7 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
 
         this.dragDataGenerators.keySet().forEach(types::add);
         this.getElement().setPropertyJson("__dragDataTypes", types);
-        getDataCommunicator().reset();
+        refreshViewport();
     }
 
     /**
@@ -4786,7 +4789,7 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
         this.tooltipGenerator = Objects.requireNonNull(tooltipGenerator,
                 "Tooltip generator cannot be null");
         addTooltipElementToTooltipSlot();
-        this.dataCommunicator.reset();
+        refreshViewport();
     }
 
     /**
@@ -4992,6 +4995,13 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
      *            zero based index of the item to scroll to in the current view.
      */
     public void scrollToIndex(int rowIndex) {
+        setViewportRangeByIndex(rowIndex);
+
+        scheduleScrollExecution(
+                () -> getElement().callJsFunction("scrollToIndex", rowIndex));
+    }
+
+    private void setViewportRangeByIndex(int rowIndex) {
         // Grid's page size
         int pageSize = getPageSize();
         // A rough approximation of the viewport size in rows. This affects the
@@ -5015,18 +5025,15 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
                 + 1;
         // Preload the items
         setViewportRange(targetPageStartIndex, preloadedItemsCount);
-
-        // Scroll to the requested index
-        getElement().callJsFunction("scrollToIndex", rowIndex);
     }
 
     /**
-     * Scrolls to the row presenting the given item.
+     * Scrolls to the given item unless it is already fully visible.
      * <p>
-     * Note that the item index provider should be explicitly set using
-     * {@link GridLazyDataView#setItemIndexProvider(ItemIndexProvider)} for lazy
-     * loading data providers. Otherwise, an
-     * {@link UnsupportedOperationException} will be thrown.
+     * For this method to work with a lazy-loading data provider, an item index
+     * provider must be supplied via
+     * {@link GridLazyDataView#setItemIndexProvider(ItemIndexProvider)}. If none
+     * is provided, an {@link UnsupportedOperationException} will be thrown.
      *
      * @param item
      *            the item to scroll to, not {@code null}.
@@ -5043,10 +5050,15 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
         AbstractDataView<T> dataView = getDataProvider().isInMemory()
                 ? getListDataView()
                 : getLazyDataView();
+        var itemKey = getDataCommunicator().getKeyMapper().key(item);
         int itemIndex = dataView.getItemIndex(item)
                 .orElseThrow(() -> new NoSuchElementException(
                         "Item to scroll to cannot be found: " + item));
-        scrollToIndex(itemIndex);
+
+        setViewportRangeByIndex(itemIndex);
+
+        scheduleScrollExecution(() -> getElement()
+                .callJsFunction("$connector.scrollToItem", itemKey, itemIndex));
     }
 
     /**
@@ -5060,9 +5072,29 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
      * Scrolls to the last data row of the grid.
      */
     public void scrollToEnd() {
-        getUI().ifPresent(
-                ui -> ui.beforeClientResponse(this, ctx -> getElement()
-                        .executeJs("this.scrollToIndex(this._flatSize)")));
+        scheduleScrollExecution(() -> getElement()
+                .executeJs("this.scrollToIndex(this._flatSize)"));
+    }
+
+    /**
+     * Scrolls the grid horizontally to make the column with the given index
+     * visible. The index refers to visible columns, in their visual order.
+     *
+     * @param columnIndex
+     *            the index of the column to scroll to
+     */
+    public void scrollToColumn(int columnIndex) {
+        getElement().callJsFunction("scrollToColumn", columnIndex);
+    }
+
+    /**
+     * Scrolls the grid horizontally to make the given column visible.
+     *
+     * @param column
+     *            the column to scroll to
+     */
+    public void scrollToColumn(Column<T> column) {
+        getElement().callJsFunction("scrollToColumn", column.getElement());
     }
 
     private void onDragStart(GridDragStartEvent<T> event) {
@@ -5288,5 +5320,9 @@ public class Grid<T> extends Component implements HasStyle, HasSize,
         } else {
             SlotUtils.clearSlot(this, EMPTY_STATE_SLOT);
         }
+    }
+
+    protected void refreshViewport() {
+        ((GridDataCommunicator<T>) getDataCommunicator()).refreshViewport();
     }
 }

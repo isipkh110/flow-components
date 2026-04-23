@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,28 +15,19 @@
  */
 package com.vaadin.flow.component.upload.tests;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.upload.Upload;
 
 import net.jcip.annotations.NotThreadSafe;
 
 @NotThreadSafe
-public class UploadDropLabelTest {
-    @After
-    public void tearDown() {
-        UI.setCurrent(null);
-    }
-
+class UploadDropLabelTest {
     // Regression test for:
     // https://github.com/vaadin/flow-components/issues/3053
     @Test
-    public void setLabelAndIcon_updateLabel_doesNotThrow() {
-        UI ui = new UI();
-        UI.setCurrent(ui);
+    void setLabelAndIcon_updateLabel_doesNotThrow() {
         Upload upload = new Upload();
         upload.setDropLabel(new Span("Label"));
         upload.setDropLabelIcon(new Span("Icon"));

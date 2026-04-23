@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -23,19 +23,33 @@ import com.vaadin.flow.component.shared.ThemeVariant;
 public enum TabSheetVariant implements ThemeVariant {
     LUMO_TABS_CENTERED("centered"),
     LUMO_TABS_SMALL("small"),
+    TABS_SMALL("small"),
     LUMO_TABS_MINIMAL("minimal"),
     LUMO_TABS_HIDE_SCROLL_BUTTONS("hide-scroll-buttons"),
     LUMO_TABS_EQUAL_WIDTH_TABS("equal-width-tabs"),
     LUMO_BORDERED("bordered"),
     LUMO_NO_PADDING("no-padding"),
-    LUMO_NO_BORDER("no-border"),
     LUMO_TABS_SHOW_SCROLL_BUTTONS("show-scroll-buttons"),
+    /**
+     * @deprecated Use {@link #TABS_HIDE_SCROLL_BUTTONS} instead.
+     */
+    @Deprecated
     AURA_TABS_HIDE_SCROLL_BUTTONS("hide-scroll-buttons"),
+    TABS_HIDE_SCROLL_BUTTONS("hide-scroll-buttons"),
+    /**
+     * @deprecated Use {@link #TABS_SHOW_SCROLL_BUTTONS} instead.
+     */
+    @Deprecated
     AURA_TABS_SHOW_SCROLL_BUTTONS("show-scroll-buttons"),
+    /**
+     * @deprecated Use {@link #NO_PADDING} instead.
+     */
+    @Deprecated
     AURA_NO_PADDING("no-padding"),
+    NO_PADDING("no-padding"),
     AURA_NO_BORDER("no-border"),
     AURA_TABS_FILLED("filled"),
-    AURA_TABS_ACCENT("accent");
+    TABS_SHOW_SCROLL_BUTTONS("show-scroll-buttons");
 
     private final String variant;
 

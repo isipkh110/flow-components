@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -59,7 +59,7 @@ public class NotificationTestPageIT extends AbstractComponentIT {
                 .map(WebElement::getText).collect(Collectors.toList());
         Assert.assertEquals(
                 "Expect to have two notification pop-ups for two notification buttons clicked",
-                notifications.size(), 2);
+                2, notifications.size());
         Assert.assertTrue("Expect to have the first notification shown",
                 notifications.stream()
                         .anyMatch(text -> text.contains("1111111")));

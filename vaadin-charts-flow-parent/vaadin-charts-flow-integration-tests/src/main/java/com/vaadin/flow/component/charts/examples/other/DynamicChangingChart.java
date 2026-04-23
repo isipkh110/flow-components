@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -13,7 +13,6 @@ import java.util.Random;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.examples.AbstractChartExample;
-import com.vaadin.flow.component.charts.examples.SkipFromDemo;
 import com.vaadin.flow.component.charts.model.ChartType;
 import com.vaadin.flow.component.charts.model.Configuration;
 import com.vaadin.flow.component.charts.model.DataLabelsFunnel;
@@ -35,8 +34,9 @@ import com.vaadin.flow.component.charts.model.XAxis;
 import com.vaadin.flow.component.charts.model.YAxis;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.function.SerializableSupplier;
+import com.vaadin.flow.router.Route;
 
-@SkipFromDemo
+@Route("vaadin-charts/other/dynamic-changing-chart")
 public class DynamicChangingChart extends AbstractChartExample {
     final Random random = new Random(0); // NOSONAR
 

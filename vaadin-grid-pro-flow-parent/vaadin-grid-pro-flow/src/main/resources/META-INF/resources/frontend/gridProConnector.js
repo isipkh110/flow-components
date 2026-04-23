@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -113,7 +113,7 @@ window.Vaadin.Flow.gridProConnector = {
         const isUpdating =
           model && cell._column && grid.__pendingCellUpdate === `${model.item.key}:${cell._column.path}`;
         const target = cell._focusButton || cell;
-        updatePart(target, isUpdating, 'updating-cell');
+        updatePart(target, 'updating-cell', isUpdating);
       });
     };
   },

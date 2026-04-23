@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -11,14 +11,10 @@ package com.vaadin.flow.component.charts.tests;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
-import com.vaadin.flow.component.charts.examples.AbstractChartExample;
-import com.vaadin.flow.component.charts.examples.other.DynamicChangingChart;
+import com.vaadin.flow.testutil.TestPath;
 
-public class DynamicChangingChartIT extends AbstractTBTest {
-    @Override
-    protected Class<? extends AbstractChartExample> getView() {
-        return DynamicChangingChart.class;
-    }
+@TestPath("vaadin-charts/other/dynamic-changing-chart")
+public class DynamicChangingChartIT extends AbstractChartIT {
 
     @Test
     public void setConfiguration_changes_chart() {

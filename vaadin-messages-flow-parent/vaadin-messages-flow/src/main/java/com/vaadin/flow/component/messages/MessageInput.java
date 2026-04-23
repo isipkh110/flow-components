@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -48,7 +48,7 @@ import com.vaadin.flow.shared.Registration;
  */
 @Tag("vaadin-message-input")
 @JsModule("@vaadin/message-input/src/vaadin-message-input.js")
-@NpmPackage(value = "@vaadin/message-input", version = "25.0.0-beta5")
+@NpmPackage(value = "@vaadin/message-input", version = "25.2.0-alpha8")
 public class MessageInput extends Component
         implements Focusable<MessageInput>, HasSize, HasStyle, HasEnabled,
         HasTooltip, HasThemeVariant<MessageInputVariant> {
@@ -149,8 +149,8 @@ public class MessageInput extends Component
      *            the i18n object, not {@code null}
      */
     public void setI18n(MessageInputI18n i18n) {
-        Objects.requireNonNull(i18n, "The i18n object should not be null");
-        this.i18n = i18n;
+        this.i18n = Objects.requireNonNull(i18n,
+                "The i18n object should not be null");
         getElement().setPropertyJson("i18n", JacksonUtils.beanToJson(i18n));
     }
 }

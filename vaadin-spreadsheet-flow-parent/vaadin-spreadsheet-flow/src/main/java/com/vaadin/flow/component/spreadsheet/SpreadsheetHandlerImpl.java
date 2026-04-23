@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -195,6 +195,11 @@ public class SpreadsheetHandlerImpl implements SpreadsheetServerRpc {
     @Override
     public void actionOnColumnHeader(String actionKey) {
         spreadsheet.getContextMenuManager().onActionOnColumnHeader(actionKey);
+    }
+
+    @Override
+    public void contextMenuClosed() {
+        spreadsheet.getContextMenuManager().onContextMenuClosed();
     }
 
     @Override

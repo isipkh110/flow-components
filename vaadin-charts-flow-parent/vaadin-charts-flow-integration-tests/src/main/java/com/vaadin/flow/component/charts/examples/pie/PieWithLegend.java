@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -18,8 +18,10 @@ import com.vaadin.flow.component.charts.model.DataSeries;
 import com.vaadin.flow.component.charts.model.DataSeriesItem;
 import com.vaadin.flow.component.charts.model.PlotOptionsPie;
 import com.vaadin.flow.component.charts.model.Tooltip;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 
+@Route("vaadin-charts/pie/pie-with-legend")
 public class PieWithLegend extends AbstractChartExample {
 
     protected Chart chart;

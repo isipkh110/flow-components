@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,24 +15,24 @@
  */
 package com.vaadin.flow.component.grid;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 
-public class GridSelectionModeTest {
+class GridSelectionModeTest {
 
     private Grid<String> grid;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         grid = new Grid<>();
         grid.setItems("foo", "bar", "baz");
     }
 
     @Test
-    public void testSelectionModes() {
+    void testSelectionModes() {
         assertInstanceOf(GridSingleSelectionModel.class,
                 grid.getSelectionModel().getClass());
 
@@ -53,25 +53,25 @@ public class GridSelectionModeTest {
     }
 
     private void assertInstanceOf(Class<?> expected, Class<?> actual) {
-        Assert.assertTrue(
+        Assertions.assertTrue(expected.isAssignableFrom(actual),
                 actual.getName() + " should be instance of "
-                        + expected.getName(),
-                expected.isAssignableFrom(actual));
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullSelectionMode() {
-        grid.setSelectionMode(null);
+                        + expected.getName());
     }
 
     @Test
-    public void testGetSelectionMode() {
-        Assert.assertEquals(SelectionMode.SINGLE, grid.getSelectionMode());
+    void testNullSelectionMode() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> grid.setSelectionMode(null));
+    }
+
+    @Test
+    void testGetSelectionMode() {
+        Assertions.assertEquals(SelectionMode.SINGLE, grid.getSelectionMode());
 
         grid.setSelectionMode(SelectionMode.MULTI);
-        Assert.assertEquals(SelectionMode.MULTI, grid.getSelectionMode());
+        Assertions.assertEquals(SelectionMode.MULTI, grid.getSelectionMode());
 
         grid.setSelectionMode(SelectionMode.NONE);
-        Assert.assertEquals(SelectionMode.NONE, grid.getSelectionMode());
+        Assertions.assertEquals(SelectionMode.NONE, grid.getSelectionMode());
     }
 }

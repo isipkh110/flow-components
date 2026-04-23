@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -47,7 +47,7 @@ import tools.jackson.databind.node.ArrayNode;
  * @author Vaadin Ltd.
  */
 @Tag("vaadin-popover")
-@NpmPackage(value = "@vaadin/popover", version = "25.0.0-beta5")
+@NpmPackage(value = "@vaadin/popover", version = "25.2.0-alpha8")
 @JsModule("@vaadin/popover/src/vaadin-popover.js")
 @JsModule("./vaadin-popover/popover.ts")
 public class Popover extends Component implements HasAriaLabel, HasComponents,
@@ -745,7 +745,7 @@ public class Popover extends Component implements HasAriaLabel, HasComponents,
                                 parentComponent.getElement()
                                         .appendChild(getElement());
                             }
-                        }, () -> ui.addToModalComponent(this));
+                        }, () -> ui.add(this));
 
                 autoAddedToTheUi = true;
             }
@@ -835,7 +835,7 @@ public class Popover extends Component implements HasAriaLabel, HasComponents,
      *            the width to set, may be {@code null}
      */
     public void setWidth(String width) {
-        getElement().setProperty("contentWidth", width);
+        getElement().setProperty("width", width);
     }
 
     /**
@@ -852,7 +852,7 @@ public class Popover extends Component implements HasAriaLabel, HasComponents,
      *            the height to set, may be {@code null}
      */
     public void setHeight(String height) {
-        getElement().setProperty("contentHeight", height);
+        getElement().setProperty("height", height);
     }
 
     /**

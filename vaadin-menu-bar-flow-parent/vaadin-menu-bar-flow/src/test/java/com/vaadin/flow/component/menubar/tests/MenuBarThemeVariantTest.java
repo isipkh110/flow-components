@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,28 +15,28 @@
  */
 package com.vaadin.flow.component.menubar.tests;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 
-public class MenuBarThemeVariantTest {
+class MenuBarThemeVariantTest {
 
     private MenuBar menuBar = new MenuBar();
 
     @Test
-    public void addAndRemoveLumoTertiaryVariant_themeAttributeUpdated() {
+    void addAndRemoveTertiaryVariant_themeAttributeUpdated() {
         assertThemeAttribute(null);
-        menuBar.addThemeVariants(MenuBarVariant.LUMO_TERTIARY);
+        menuBar.addThemeVariants(MenuBarVariant.TERTIARY);
         assertThemeAttribute("tertiary");
-        menuBar.removeThemeVariants(MenuBarVariant.LUMO_TERTIARY);
+        menuBar.removeThemeVariants(MenuBarVariant.TERTIARY);
         assertThemeAttribute(null);
     }
 
     private void assertThemeAttribute(String expected) {
         String theme = menuBar.getElement().getAttribute("theme");
-        Assert.assertEquals("Unexpected theme attribute on menu bar", expected,
-                theme);
+        Assertions.assertEquals(expected, theme,
+                "Unexpected theme attribute on menu bar");
     }
 }

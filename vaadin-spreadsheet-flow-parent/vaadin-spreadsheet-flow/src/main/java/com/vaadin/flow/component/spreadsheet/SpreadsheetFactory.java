@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -1063,7 +1063,7 @@ public class SpreadsheetFactory implements Serializable {
              * columns.
              *
              * In Spreadsheet the meaning is the opposite.
-             * 
+             *
              * POI uses a split position of 0 to mean "no split", so we should
              * not be setting split positions or hiding anything in the case
              * this position is 0.
@@ -1080,9 +1080,12 @@ public class SpreadsheetFactory implements Serializable {
                             .boxed().collect(Collectors.toMap(
                                     Function.identity(), index -> true)));
                 }
-            } else if (leftCol > 0) {
-                // TODO: should scroll vertically to restore viewport state
-                // This needs API on the Spreadsheet side
+            } else {
+                spreadsheet.setHorizontalSplitPosition(0);
+                if (leftCol > 0) {
+                    // TODO: should scroll horizontally to restore viewport
+                    // state. This needs API on the Spreadsheet side
+                }
             }
 
             if (hSplit > 0) {
@@ -1092,9 +1095,12 @@ public class SpreadsheetFactory implements Serializable {
                             .collect(Collectors.toMap(Function.identity(),
                                     index -> true)));
                 }
-            } else if (topRow > 0) {
-                // TODO: should scroll vertically to restore viewport state
-                // This needs API on the Spreadsheet side
+            } else {
+                spreadsheet.setVerticalSplitPosition(0);
+                if (topRow > 0) {
+                    // TODO: should scroll vertically to restore viewport
+                    // state. This needs API on the Spreadsheet side
+                }
             }
         } else {
             spreadsheet.setVerticalSplitPosition(0);

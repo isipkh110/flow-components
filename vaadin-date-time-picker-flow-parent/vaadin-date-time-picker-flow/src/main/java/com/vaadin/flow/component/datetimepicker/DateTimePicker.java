@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -30,6 +30,7 @@ import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.AbstractSinglePropertyField;
 import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.SignalPropertySupport;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.datepicker.DatePicker.DatePickerI18n;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -47,9 +48,12 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValidationStatusChangeEvent;
 import com.vaadin.flow.data.binder.ValidationStatusChangeListener;
 import com.vaadin.flow.data.binder.Validator;
+import com.vaadin.flow.dom.SignalBinding;
+import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.internal.JacksonUtils;
 import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.signals.Signal;
 
 import tools.jackson.databind.node.ObjectNode;
 
@@ -89,7 +93,7 @@ class DateTimePickerTimePicker
  * @author Vaadin Ltd
  */
 @Tag("vaadin-date-time-picker")
-@NpmPackage(value = "@vaadin/date-time-picker", version = "25.0.0-beta5")
+@NpmPackage(value = "@vaadin/date-time-picker", version = "25.2.0-alpha8")
 @JsModule("@vaadin/date-time-picker/src/vaadin-date-time-picker.js")
 public class DateTimePicker
         extends AbstractSinglePropertyField<DateTimePicker, LocalDateTime>
@@ -116,14 +120,13 @@ public class DateTimePicker
         return d == null ? "" : d.truncatedTo(ChronoUnit.MILLIS).toString();
     };
 
-    private LocalDateTime max;
-    private LocalDateTime min;
-
     private final CopyOnWriteArrayList<ValidationStatusChangeListener<LocalDateTime>> validationStatusChangeListeners = new CopyOnWriteArrayList<>();
 
     private final Validator<LocalDateTime> defaultValidator = (value,
             context) -> {
         var fromComponent = context == null;
+        var min = getMin();
+        var max = getMax();
 
         // Report error if any of the pickers has bad input
         if (isInputUnparsable()) {
@@ -191,6 +194,14 @@ public class DateTimePicker
 
     private ValidationController<DateTimePicker, LocalDateTime> validationController = new ValidationController<>(
             this);
+
+    private final SignalPropertySupport<Boolean> readonlySupport = SignalPropertySupport
+            .create(this, (value) -> {
+                super.setReadOnly(value);
+                datePicker.setReadOnly(value);
+                timePicker.setReadOnly(value);
+
+            });
 
     /**
      * Default constructor.
@@ -400,8 +411,8 @@ public class DateTimePicker
         var shouldFireValidationStatusChangeEvent = oldValue == null
                 && value == null
                 && (isInputUnparsable() || isInputIncomplete());
-        super.setValue(value);
         synchronizeChildComponentValues(value);
+        super.setValue(value);
         if (shouldFireValidationStatusChangeEvent) {
             validate(true);
         }
@@ -438,12 +449,12 @@ public class DateTimePicker
 
     @Override
     public void setReadOnly(boolean readOnly) {
-        super.setReadOnly(readOnly);
-        // fixme(haprog) This override can probably be removed after we use a
-        // version which includes this fix:
-        // https://github.com/vaadin/vaadin-date-time-picker/pull/30
-        datePicker.setReadOnly(readOnly);
-        timePicker.setReadOnly(readOnly);
+        readonlySupport.set(readOnly);
+    }
+
+    @Override
+    public SignalBinding<Boolean> bindReadOnly(Signal<Boolean> readOnlySignal) {
+        return readonlySupport.bind(readOnlySignal);
     }
 
     @Override
@@ -863,7 +874,6 @@ public class DateTimePicker
      */
     public void setMin(LocalDateTime min) {
         getElement().setProperty("min", FORMATTER.apply(min));
-        this.min = min;
     }
 
     /**
@@ -878,6 +888,39 @@ public class DateTimePicker
     }
 
     /**
+     * Binds the given signal to the minimum date and time allowed to be set for
+     * this field.
+     * <p>
+     * The minimum date and time is set immediately with the current signal
+     * value when the binding is created, and is kept synchronized with any
+     * subsequent signal value changes while the component is in attached state.
+     * When the component is in detached state, signal value changes have no
+     * effect.
+     * <p>
+     * While a signal is bound, any attempt to set the minimum date and time
+     * manually through {@link #setMin(LocalDateTime)} throws a
+     * {@link com.vaadin.flow.signals.BindingActiveException}.
+     * <p>
+     * Attempting to bind a new signal while one is already bound throws a
+     * {@link com.vaadin.flow.signals.BindingActiveException}.
+     *
+     * @param signal
+     *            the signal to bind the minimum date and time to, not
+     *            {@code null}
+     * @return a {@link SignalBinding} that can be used to register
+     *         {@link SignalBinding#onChange(com.vaadin.flow.function.SerializableConsumer)
+     *         onChange} callbacks
+     * @see #setMin(LocalDateTime)
+     * @see com.vaadin.flow.dom.Element#bindProperty(String, Signal,
+     *      SerializableConsumer)
+     * @since 25.1
+     */
+    public SignalBinding<String> bindMin(Signal<LocalDateTime> signal) {
+        return getElement().bindProperty("min",
+                signal == null ? null : signal.map(FORMATTER::apply), null);
+    }
+
+    /**
      * Sets the maximum date and time in the date time picker. Dates and times
      * above that will be disabled in the popups.
      *
@@ -887,7 +930,6 @@ public class DateTimePicker
      */
     public void setMax(LocalDateTime max) {
         getElement().setProperty("max", FORMATTER.apply(max));
-        this.max = max;
     }
 
     /**
@@ -899,6 +941,39 @@ public class DateTimePicker
      */
     public LocalDateTime getMax() {
         return PARSER.apply(getElement().getProperty("max"));
+    }
+
+    /**
+     * Binds the given signal to the maximum date and time allowed to be set for
+     * this field.
+     * <p>
+     * The maximum date and time is set immediately with the current signal
+     * value when the binding is created, and is kept synchronized with any
+     * subsequent signal value changes while the component is in attached state.
+     * When the component is in detached state, signal value changes have no
+     * effect.
+     * <p>
+     * While a signal is bound, any attempt to set the maximum date and time
+     * manually through {@link #setMax(LocalDateTime)} throws a
+     * {@link com.vaadin.flow.signals.BindingActiveException}.
+     * <p>
+     * Attempting to bind a new signal while one is already bound throws a
+     * {@link com.vaadin.flow.signals.BindingActiveException}.
+     *
+     * @param signal
+     *            the signal to bind the maximum date and time to, not
+     *            {@code null}
+     * @return a {@link SignalBinding} that can be used to register
+     *         {@link SignalBinding#onChange(com.vaadin.flow.function.SerializableConsumer)
+     *         onChange} callbacks
+     * @see #setMax(LocalDateTime)
+     * @see com.vaadin.flow.dom.Element#bindProperty(String, Signal,
+     *      SerializableConsumer)
+     * @since 25.1
+     */
+    public SignalBinding<String> bindMax(Signal<LocalDateTime> signal) {
+        return getElement().bindProperty("max",
+                signal == null ? null : signal.map(FORMATTER::apply), null);
     }
 
     /**
@@ -948,9 +1023,8 @@ public class DateTimePicker
      *            the internationalized properties, not <code>null</code>
      */
     public void setI18n(DateTimePickerI18n i18n) {
-        Objects.requireNonNull(i18n,
+        this.i18n = Objects.requireNonNull(i18n,
                 "The i18n properties object should not be null");
-        this.i18n = i18n;
         updateI18n();
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -22,20 +22,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.internal.UIInternals;
 import com.vaadin.flow.component.notification.Notification.Position;
-import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.tests.MockUIExtension;
 
 import net.jcip.annotations.NotThreadSafe;
 
@@ -43,26 +39,12 @@ import net.jcip.annotations.NotThreadSafe;
  * Unit tests for the Notification.
  */
 @NotThreadSafe
-public class NotificationTest {
-
-    private UI ui;
-
-    @Before
-    public void setup() {
-        VaadinSession session = Mockito.mock(VaadinSession.class);
-        ui = new UI();
-        ui.getInternals().setSession(session);
-
-        UI.setCurrent(ui);
-    }
-
-    @After
-    public void tearDown() {
-        UI.setCurrent(null);
-    }
+class NotificationTest {
+    @RegisterExtension
+    MockUIExtension ui = new MockUIExtension();
 
     @Test
-    public void createNotificationWithComponents_componentsArePartOfGetChildren() {
+    void createNotificationWithComponents_componentsArePartOfGetChildren() {
         Span span1 = new Span("Text 1");
         Span span2 = new Span("Text 2");
         Span span3 = new Span("Text 3");
@@ -71,53 +53,53 @@ public class NotificationTest {
 
         List<Component> children = notification.getChildren()
                 .collect(Collectors.toList());
-        Assert.assertEquals(2, children.size());
-        Assert.assertTrue(children.contains(span1));
-        Assert.assertTrue(children.contains(span2));
+        Assertions.assertEquals(2, children.size());
+        Assertions.assertTrue(children.contains(span1));
+        Assertions.assertTrue(children.contains(span2));
 
         notification.add(span3);
         children = notification.getChildren().collect(Collectors.toList());
-        Assert.assertEquals(3, children.size());
-        Assert.assertTrue(children.contains(span1));
-        Assert.assertTrue(children.contains(span2));
-        Assert.assertTrue(children.contains(span3));
+        Assertions.assertEquals(3, children.size());
+        Assertions.assertTrue(children.contains(span1));
+        Assertions.assertTrue(children.contains(span2));
+        Assertions.assertTrue(children.contains(span3));
 
         notification.remove(span2);
         children = notification.getChildren().collect(Collectors.toList());
-        Assert.assertEquals(2, children.size());
-        Assert.assertTrue("Children should contain span1",
-                children.contains(span1));
-        Assert.assertTrue("Children should contain span3",
-                children.contains(span3));
+        Assertions.assertEquals(2, children.size());
+        Assertions.assertTrue(children.contains(span1),
+                "Children should contain span1");
+        Assertions.assertTrue(children.contains(span3),
+                "Children should contain span3");
 
         span1.getElement().removeFromParent();
         children = notification.getChildren().collect(Collectors.toList());
-        Assert.assertEquals(1, children.size());
-        Assert.assertTrue("Children should contain span3",
-                children.contains(span3));
+        Assertions.assertEquals(1, children.size());
+        Assertions.assertTrue(children.contains(span3),
+                "Children should contain span3");
 
         notification.removeAll();
         children = notification.getChildren().collect(Collectors.toList());
-        Assert.assertEquals(0, children.size());
+        Assertions.assertEquals(0, children.size());
     }
 
     @Test
-    public void createNotificationWithComponentsInsideComponent_onlyRootComponentsAreReturned() {
+    void createNotificationWithComponentsInsideComponent_onlyRootComponentsAreReturned() {
         Div container1 = new Div();
         Div container2 = new Div(container1);
 
         Notification notification = new Notification(container2);
         List<Component> children = notification.getChildren()
                 .collect(Collectors.toList());
-        Assert.assertEquals(1, children.size());
-        Assert.assertTrue("Children should contain container2",
-                children.contains(container2));
-        Assert.assertFalse("Children should not contain container1",
-                children.contains(container1));
+        Assertions.assertEquals(1, children.size());
+        Assertions.assertTrue(children.contains(container2),
+                "Children should contain container2");
+        Assertions.assertFalse(children.contains(container1),
+                "Children should not contain container1");
     }
 
     @Test
-    public void constructorsWithNoDurationCreateNotCloseableNotifications() {
+    void constructorsWithNoDurationCreateNotCloseableNotifications() {
         final long constructorsWithoutDurationParameter = 3L;
 
         long constructorsWithNoIntParameter = Stream
@@ -126,99 +108,104 @@ public class NotificationTest {
                         .of(constructor.getParameterTypes())
                         .noneMatch(int.class::equals))
                 .count();
-        Assert.assertEquals(
-                "Unexpected number of constructors without duration parameter, please test that it has default duration and increment the number",
-                constructorsWithoutDurationParameter,
-                constructorsWithNoIntParameter);
+        Assertions.assertEquals(constructorsWithoutDurationParameter,
+                constructorsWithNoIntParameter,
+                "Unexpected number of constructors without duration parameter, please test that it has default duration and increment the number");
 
         Collection<Notification> notificationsToCheck = Arrays.asList(
                 new Notification(), new Notification("test"),
                 new Notification(new Span("one"), new Span("two")));
 
-        Assert.assertEquals(
-                "Not all of the Notification constructors without duration parameter are tested",
-                constructorsWithoutDurationParameter,
-                notificationsToCheck.size());
+        Assertions.assertEquals(constructorsWithoutDurationParameter,
+                notificationsToCheck.size(),
+                "Not all of the Notification constructors without duration parameter are tested");
 
         final int expectedDuration = 0;
         for (Notification notification : notificationsToCheck) {
-            Assert.assertEquals(String.format(
-                    "Each Notification object created with the constructor that has no 'duration' parameter should have duration set as '%d'",
-                    expectedDuration), expectedDuration,
-                    notification.getDuration());
+            Assertions.assertEquals(expectedDuration,
+                    notification.getDuration(),
+                    String.format(
+                            "Each Notification object created with the constructor that has no 'duration' parameter should have duration set as '%d'",
+                            expectedDuration));
         }
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void setOpened_noUiInstance() {
-        UI.setCurrent(null);
+    @Test
+    void setOpened_noUiInstance() {
+        ui.clearUI();
         Notification notification = new Notification();
-        notification.setOpened(true);
+        Assertions.assertThrows(IllegalStateException.class,
+                () -> notification.setOpened(true));
     }
 
     @Test
-    public void defaultPositionValue() {
+    void defaultPositionValue() {
         Notification notification = new Notification();
 
         // default CTOR sets position explicitly (as any other CTOR)
-        Assert.assertEquals(Position.BOTTOM_START, notification.getPosition());
+        Assertions.assertEquals(Position.BOTTOM_START,
+                notification.getPosition());
 
         // There is no API to reset position, so set position to null as a
         // property, the default client side value is bottom start
         notification.getElement().setProperty("position", null);
 
-        Assert.assertEquals(Position.BOTTOM_START, notification.getPosition());
+        Assertions.assertEquals(Position.BOTTOM_START,
+                notification.getPosition());
     }
 
     @Test
-    public void showNotification_defaultPositionAndDurationValues() {
+    void showNotification_defaultPositionAndDurationValues() {
         Notification notification = Notification.show("foo");
 
-        Assert.assertEquals(Position.BOTTOM_START, notification.getPosition());
-        Assert.assertEquals(5000, notification.getDuration());
+        Assertions.assertEquals(Position.BOTTOM_START,
+                notification.getPosition());
+        Assertions.assertEquals(5000, notification.getDuration());
     }
 
     @Test
-    public void addComponent_setText_notificationHasText() {
+    void addComponent_setText_notificationHasText() {
         Notification notification = new Notification();
 
         notification.add(new Div());
         notification.setText("foo");
 
-        Assert.assertEquals("foo",
+        Assertions.assertEquals("foo",
                 notification.getElement().getProperty("text"));
     }
 
     @Test
-    public void setText_addComponent_notificationDoesNotHaveText() {
+    void setText_addComponent_notificationDoesNotHaveText() {
         Notification notification = new Notification();
 
         notification.setText("foo");
         notification.add(new Div());
 
-        Assert.assertEquals(null,
+        Assertions.assertEquals(null,
                 notification.getElement().getProperty("text"));
     }
 
     @Test
-    public void setText_setTextNull_notificationDoesNotHaveText() {
+    void setText_setTextNull_notificationDoesNotHaveText() {
         Notification notification = new Notification();
 
         notification.setText("foo");
         notification.setText(null);
 
-        Assert.assertEquals(null,
+        Assertions.assertEquals(null,
                 notification.getElement().getProperty("text"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void addComponentAtIndex_negativeIndex() {
-        addDivAtIndex(-1);
+    @Test
+    void addComponentAtIndex_negativeIndex() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> addDivAtIndex(-1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void addComponentAtIndex_indexIsBiggerThanChildrenCount() {
-        addDivAtIndex(1);
+    @Test
+    void addComponentAtIndex_indexIsBiggerThanChildrenCount() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> addDivAtIndex(1));
     }
 
     private void addDivAtIndex(int index) {
@@ -229,13 +216,13 @@ public class NotificationTest {
     }
 
     @Test
-    public void hasStyle() {
+    void hasStyle() {
         Notification notification = new Notification();
-        Assert.assertTrue(notification instanceof HasStyle);
+        Assertions.assertTrue(notification instanceof HasStyle);
     }
 
     @Test
-    public void createNotification_closeOnParentDetach() {
+    void createNotification_closeOnParentDetach() {
         // Create a Notification manually and add it to a parent container
         Notification notification = new Notification();
         notification.open();
@@ -244,55 +231,55 @@ public class NotificationTest {
         ui.add(parent);
 
         // The notification was opened manually. Check that it's still open.
-        Assert.assertTrue(notification.isOpened());
+        Assertions.assertTrue(notification.isOpened());
 
         // Remove the parent container from the UI
         ui.remove(parent);
         // Auto-close happens in before client response
-        flushBeforeClientResponse();
+        ui.fakeClientCommunication();
 
         // The notification should have been closed on detach, even if it was
         // the parent that was removed
-        Assert.assertFalse(notification.isOpened());
+        Assertions.assertFalse(notification.isOpened());
         // The parent reference should not have changed
-        Assert.assertEquals(notification.getParent().get(), parent);
+        Assertions.assertEquals(notification.getParent().get(), parent);
     }
 
     @Test
-    public void showNotificationInModal_closeAndDetachOnParentDetach() {
+    void showNotificationInModal_closeAndDetachOnParentDetach() {
         // Create a modal parent container and add it to the UI
         Div parent = new Div();
         ui.add(parent);
-        ui.setChildComponentModal(parent, true);
+        ui.getUI().setChildComponentModal(parent, true);
 
         // Use Notification.show() helper to create a notification.
         // It will be automatically added to the modal parent container (before
         // client response)
         Notification notification = Notification.show("foo");
-        flushBeforeClientResponse();
+        ui.fakeClientCommunication();
 
         // Check that the notification is opened and attached to the parent
         // container
-        Assert.assertTrue(notification.isOpened());
-        Assert.assertTrue(parent.getChildren().collect(Collectors.toList())
+        Assertions.assertTrue(notification.isOpened());
+        Assertions.assertTrue(parent.getChildren().collect(Collectors.toList())
                 .contains(notification));
 
         // Remove the modal parent container from the UI
         ui.remove(parent);
         // Auto-close happens in before client response
-        flushBeforeClientResponse();
+        ui.fakeClientCommunication();
 
         // The notification should have been closed on detach, even if it was
         // the parent that was removed
-        Assert.assertFalse(notification.isOpened());
+        Assertions.assertFalse(notification.isOpened());
         // The notification should have been automatically removed from the
         // parent container
-        Assert.assertFalse(parent.getChildren().collect(Collectors.toList())
+        Assertions.assertFalse(parent.getChildren().collect(Collectors.toList())
                 .contains(notification));
     }
 
     @Test
-    public void showNotification_addManually_dontDetachOnParentDetach() {
+    void showNotification_addManually_dontDetachOnParentDetach() {
         // Use Notification.show() helper to create a notification.
         Notification notification = Notification.show("foo");
 
@@ -300,29 +287,24 @@ public class NotificationTest {
         Div parent = new Div(notification);
         ui.add(parent);
         // Flush
-        flushBeforeClientResponse();
+        ui.fakeClientCommunication();
 
         // Check that the notification is attached to the parent container
-        Assert.assertEquals(notification.getParent().get(), parent);
+        Assertions.assertEquals(notification.getParent().get(), parent);
 
         // Remove the modal parent container from the UI
         ui.remove(parent);
         // Auto-removal happens in before client response
-        flushBeforeClientResponse();
+        ui.fakeClientCommunication();
 
         // Even though the notification was created using Notification.show(),
         // it got was manually added to the parent container so it should not
         // have been automatically removed from it.
-        Assert.assertEquals(notification.getParent().get(), parent);
-    }
-
-    private void flushBeforeClientResponse() {
-        UIInternals internals = ui.getInternals();
-        internals.getStateTree().runExecutionsBeforeClientResponse();
+        Assertions.assertEquals(notification.getParent().get(), parent);
     }
 
     @Test
-    public void unregisterOpenedChangeListenerOnEvent() {
+    void unregisterOpenedChangeListenerOnEvent() {
         var notification = new Notification();
 
         var listenerInvokedCount = new AtomicInteger(0);
@@ -334,11 +316,11 @@ public class NotificationTest {
         notification.open();
         notification.close();
 
-        Assert.assertEquals(1, listenerInvokedCount.get());
+        Assertions.assertEquals(1, listenerInvokedCount.get());
     }
 
     @Test
-    public void openedChangeListener_shouldWorkForAllConstructors() {
+    void openedChangeListener_shouldWorkForAllConstructors() {
         var listenerInvokedCount = new AtomicInteger(0);
 
         var notifications = Stream.of(//
@@ -361,30 +343,30 @@ public class NotificationTest {
 
         // two invocations expected per notification - open & close
         int expectedInvocationsCount = 2 * notifications.size();
-        Assert.assertEquals(expectedInvocationsCount,
+        Assertions.assertEquals(expectedInvocationsCount,
                 listenerInvokedCount.get());
     }
 
     @Test
-    public void setText_notificationHasUnmodifiedText() {
+    void setText_notificationHasUnmodifiedText() {
         Notification notification = new Notification();
         notification.setText("foo > bar");
 
-        Assert.assertEquals("foo > bar",
+        Assertions.assertEquals("foo > bar",
                 notification.getElement().getProperty("text"));
     }
 
     @Test
-    public void setAssertive_isAssertive() {
+    void setAssertive_isAssertive() {
         Notification notification = new Notification();
         notification.setAssertive(true);
-        Assert.assertEquals(notification.isAssertive(), true);
-        Assert.assertTrue(
+        Assertions.assertEquals(true, notification.isAssertive());
+        Assertions.assertTrue(
                 notification.getElement().getProperty("assertive", false));
 
         notification.setAssertive(false);
-        Assert.assertEquals(notification.isAssertive(), false);
-        Assert.assertFalse(
+        Assertions.assertEquals(false, notification.isAssertive());
+        Assertions.assertFalse(
                 notification.getElement().getProperty("assertive", false));
     }
 }

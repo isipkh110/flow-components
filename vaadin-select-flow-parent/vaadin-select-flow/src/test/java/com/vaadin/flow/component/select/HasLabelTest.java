@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,17 +15,17 @@
  */
 package com.vaadin.flow.component.select;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.vaadin.flow.component.HasLabel;
 
-public class HasLabelTest {
+class HasLabelTest {
 
     @Test
-    public void select() {
+    void select() {
         Select<String> c = new Select<>();
-        Assert.assertTrue(c instanceof HasLabel);
+        Assertions.assertTrue(c instanceof HasLabel);
     }
 
 }

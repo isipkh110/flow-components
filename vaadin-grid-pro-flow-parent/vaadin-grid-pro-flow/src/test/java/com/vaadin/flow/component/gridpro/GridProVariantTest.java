@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -8,29 +8,29 @@
  */
 package com.vaadin.flow.component.gridpro;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class GridProVariantTest {
+class GridProVariantTest {
 
     @Test
-    public void addThemeVariant_themeNamesContainsThemeVariant() {
+    void addThemeVariant_themeNamesContainsThemeVariant() {
         var gridPro = new GridPro<>();
-        gridPro.addThemeVariants(GridProVariant.LUMO_NO_BORDER);
+        gridPro.addThemeVariants(GridProVariant.NO_BORDER);
 
         var themeNames = gridPro.getThemeNames();
-        Assert.assertTrue(themeNames
-                .contains(GridProVariant.LUMO_NO_BORDER.getVariantName()));
+        Assertions.assertTrue(
+                themeNames.contains(GridProVariant.NO_BORDER.getVariantName()));
     }
 
     @Test
-    public void addThemeVariant_removeThemeVariant_themeNamesDoesNotContainThemeVariant() {
+    void addThemeVariant_removeThemeVariant_themeNamesDoesNotContainThemeVariant() {
         var gridPro = new GridPro<>();
-        gridPro.addThemeVariants(GridProVariant.LUMO_NO_BORDER);
-        gridPro.removeThemeVariants(GridProVariant.LUMO_NO_BORDER);
+        gridPro.addThemeVariants(GridProVariant.NO_BORDER);
+        gridPro.removeThemeVariants(GridProVariant.NO_BORDER);
 
         var themeNames = gridPro.getThemeNames();
-        Assert.assertFalse(themeNames
-                .contains(GridProVariant.LUMO_NO_BORDER.getVariantName()));
+        Assertions.assertFalse(
+                themeNames.contains(GridProVariant.NO_BORDER.getVariantName()));
     }
 }

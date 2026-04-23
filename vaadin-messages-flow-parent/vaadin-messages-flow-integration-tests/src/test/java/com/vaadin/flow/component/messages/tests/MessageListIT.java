@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -227,6 +227,35 @@ public class MessageListIT extends AbstractComponentIT {
     }
 
     @Test
+    public void changeLocaleVariant_messagesRendered() {
+        clickElementWithJs("setLocaleVariant");
+
+        List<MessageElement> messages = messageList.getMessageElements();
+        Assert.assertEquals("Unexpected items count", 2, messages.size());
+
+        MessageElement msg = messages.get(0);
+        Assert.assertEquals("Unexpected text content", "foo", msg.getText());
+        // Should fallback to German locale formatting
+        Assert.assertTrue("Unexpected time prop", msg.getTime()
+                .matches("[0-9]+\\. [A-Za-z\\.]+ 2021, [0-9]+:[0-9]+"));
+        Assert.assertEquals("Unexpected userName prop", "sender",
+                msg.getUserName());
+
+        checkLogsForErrors(message -> message.contains("test.jpg"));
+    }
+
+    @Test
+    public void changeLocaleVariant_addItem_doesNotThrow() {
+        clickElementWithJs("setLocaleVariant");
+        clickElementWithJs("addItem");
+
+        List<MessageElement> messages = messageList.getMessageElements();
+        Assert.assertEquals("Unexpected items count", 3, messages.size());
+
+        checkLogsForErrors(message -> message.contains("test.jpg"));
+    }
+
+    @Test
     public void setImageAsDownloadResource_imageLoaded() {
         getLogEntries(Level.WARNING); // message logs before setting resource
         clickElementWithJs("setImageAsDownloadHandler");
@@ -234,6 +263,83 @@ public class MessageListIT extends AbstractComponentIT {
         Assert.assertTrue("Image URL should start with 'VAADIN/dynamic'",
                 imageUrl.startsWith("VAADIN/dynamic"));
         checkLogsForErrors(); // would fail if the image wasn't hosted
+    }
+
+    @Test
+    public void addItemWithAttachments_attachmentsRendered() {
+        clickElementWithJs("addItemWithAttachments");
+
+        var messages = messageList.getMessageElements();
+        var messageWithAttachments = messages.get(messages.size() - 1);
+
+        Assert.assertTrue("Message should have attachments",
+                messageWithAttachments.hasAttachments());
+
+        var attachments = messageWithAttachments.getAttachmentElements();
+        Assert.assertEquals("Should have 3 attachments", 3, attachments.size());
+
+        // Check file attachment
+        var pdfAttachment = messageWithAttachments
+                .getAttachmentByName("proposal.pdf");
+        Assert.assertNotNull("Should find proposal.pdf attachment",
+                pdfAttachment);
+        Assert.assertFalse("PDF should not be an image attachment",
+                messageWithAttachments.isImageAttachment(pdfAttachment));
+
+        // Check image attachment
+        var imageAttachment = messageWithAttachments
+                .getAttachmentByName("chart.svg");
+        Assert.assertNotNull("Should find chart.svg attachment",
+                imageAttachment);
+        Assert.assertTrue("SVG should be an image attachment",
+                messageWithAttachments.isImageAttachment(imageAttachment));
+    }
+
+    @Test
+    public void addAttachmentToExistingItem_attachmentRendered() {
+        clickElementWithJs("addAttachmentToFirstItem");
+
+        var firstMessage = getFirstMessage(messageList);
+
+        Assert.assertTrue("First message should have attachments",
+                firstMessage.hasAttachments());
+
+        var attachment = firstMessage.getAttachmentByName("agenda.pdf");
+        Assert.assertNotNull("Should find agenda.pdf attachment", attachment);
+    }
+
+    @Test
+    public void clickAttachment_eventFired() {
+        clickElementWithJs("addItemWithAttachments");
+
+        var messages = messageList.getMessageElements();
+        var messageWithAttachments = messages.get(messages.size() - 1);
+
+        var pdfAttachment = messageWithAttachments
+                .getAttachmentByName("proposal.pdf");
+        pdfAttachment.click();
+
+        var clickedAttachment = $("span").id("clickedAttachment");
+        // Event includes item's userName, attachment name, and mime type
+        Assert.assertEquals("User | proposal.pdf | application/pdf",
+                clickedAttachment.getText());
+    }
+
+    @Test
+    public void clickImageAttachment_eventFired() {
+        clickElementWithJs("addItemWithAttachments");
+
+        var messages = messageList.getMessageElements();
+        var messageWithAttachments = messages.get(messages.size() - 1);
+
+        var imageAttachment = messageWithAttachments
+                .getAttachmentByName("chart.svg");
+        imageAttachment.click();
+
+        var clickedAttachment = $("span").id("clickedAttachment");
+        // Event includes item's userName, attachment name, and mime type
+        Assert.assertEquals("User | chart.svg | image/svg+xml",
+                clickedAttachment.getText());
     }
 
     private MessageElement getFirstMessage(MessageListElement list) {

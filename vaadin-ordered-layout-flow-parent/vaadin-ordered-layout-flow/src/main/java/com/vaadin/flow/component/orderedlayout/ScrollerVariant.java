@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -24,9 +24,24 @@ public enum ScrollerVariant implements ThemeVariant {
     LUMO_OVERFLOW_INDICATORS("overflow-indicators"),
     LUMO_OVERFLOW_INDICATOR_TOP("overflow-indicator-top"),
     LUMO_OVERFLOW_INDICATOR_BOTTOM("overflow-indicator-bottom"),
+    /**
+     * @deprecated Use {@link #OVERFLOW_INDICATORS} instead.
+     */
+    @Deprecated
     AURA_OVERFLOW_INDICATORS("overflow-indicators"),
+    /**
+     * @deprecated Use {@link #OVERFLOW_INDICATOR_TOP} instead.
+     */
+    @Deprecated
     AURA_OVERFLOW_INDICATOR_TOP("overflow-indicator-top"),
-    AURA_OVERFLOW_INDICATOR_BOTTOM("overflow-indicator-bottom");
+    /**
+     * @deprecated Use {@link #OVERFLOW_INDICATOR_BOTTOM} instead.
+     */
+    @Deprecated
+    AURA_OVERFLOW_INDICATOR_BOTTOM("overflow-indicator-bottom"),
+    OVERFLOW_INDICATORS("overflow-indicators"),
+    OVERFLOW_INDICATOR_TOP("overflow-indicator-top"),
+    OVERFLOW_INDICATOR_BOTTOM("overflow-indicator-bottom");
 
     private final String variant;
 

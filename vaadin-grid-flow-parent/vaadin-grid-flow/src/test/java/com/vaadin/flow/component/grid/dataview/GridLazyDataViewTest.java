@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,23 +18,25 @@ package com.vaadin.flow.component.grid.dataview;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.BackEndDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.tests.dataprovider.MockUI;
+import com.vaadin.tests.MockUIExtension;
 
-public class GridLazyDataViewTest {
+class GridLazyDataViewTest {
+    @RegisterExtension
+    MockUIExtension ui = new MockUIExtension();
 
     private GridLazyDataView<String> dataView;
     private Grid<String> grid;
-    private MockUI ui;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         BackEndDataProvider<String, Void> dataProvider = DataProvider
                 .fromCallbacks(query -> {
                     query.getOffset();
@@ -43,25 +45,24 @@ public class GridLazyDataViewTest {
                 }, query -> 3);
 
         grid = new Grid<>();
-        ui = new MockUI();
         ui.add(grid);
 
         dataView = grid.setItems(dataProvider);
     }
 
     @Test
-    public void setItemCountCallback_switchFromUndefinedSize_definedSize() {
-        Assert.assertTrue(grid.getDataCommunicator().isDefinedSize());
+    void setItemCountCallback_switchFromUndefinedSize_definedSize() {
+        Assertions.assertTrue(grid.getDataCommunicator().isDefinedSize());
 
         dataView.setItemCountUnknown();
-        Assert.assertFalse(grid.getDataCommunicator().isDefinedSize());
+        Assertions.assertFalse(grid.getDataCommunicator().isDefinedSize());
 
         dataView.setItemCountCallback(query -> 5);
-        Assert.assertTrue(grid.getDataCommunicator().isDefinedSize());
+        Assertions.assertTrue(grid.getDataCommunicator().isDefinedSize());
     }
 
     @Test
-    public void setItemCountCallback_setAnotherCountCallback_itemCountChanged() {
+    void setItemCountCallback_setAnotherCountCallback_itemCountChanged() {
         final AtomicInteger itemCount = new AtomicInteger(0);
         dataView.addItemCountChangeListener(
                 event -> itemCount.set(event.getItemCount()));
@@ -69,14 +70,9 @@ public class GridLazyDataViewTest {
 
         dataView.setItemCountCallback(query -> 2);
 
-        fakeClientCommunication();
+        ui.fakeClientCommunication();
 
-        Assert.assertEquals("Invalid item count reported", 2, itemCount.get());
-    }
-
-    private void fakeClientCommunication() {
-        ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
-        ui.getInternals().getStateTree().collectChanges(ignore -> {
-        });
+        Assertions.assertEquals(2, itemCount.get(),
+                "Invalid item count reported");
     }
 }

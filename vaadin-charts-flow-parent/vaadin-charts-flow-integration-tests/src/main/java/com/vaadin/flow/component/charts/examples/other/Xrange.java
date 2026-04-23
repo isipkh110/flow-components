@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -21,7 +21,9 @@ import com.vaadin.flow.component.charts.model.DataSeries;
 import com.vaadin.flow.component.charts.model.DataSeriesItemXrange;
 import com.vaadin.flow.component.charts.model.PlotOptionsXrange;
 import com.vaadin.flow.component.charts.model.style.SolidColor;
+import com.vaadin.flow.router.Route;
 
+@Route("vaadin-charts/other/xrange")
 public class Xrange extends AbstractChartExample {
 
     @Override

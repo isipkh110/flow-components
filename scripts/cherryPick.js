@@ -24,6 +24,7 @@ let arrSHA = [];
 let arrBranch = [];
 let arrUser = [];
 let arrMergedBy = [];
+const arrBody = [];
 
 const repo = "vaadin/flow-components";
 const token = process.env['GITHUB_TOKEN'];
@@ -105,10 +106,26 @@ async function filterCommits(commits){
           arrTitle.push(`${commit.title} (#${commit.number}) (CP: ${branch[1]})`);
           arrUser.push(`@${commit.user.login}`);
           arrMergedBy.push(`@${singleCommit.merged_by.login}`);
+          arrBody.push(singleCommit.body || '');
         }
       })
     }
   }
+}
+
+function buildCherryPickBody(originalPRNumber, originalBody, targetBranch) {
+  const quotedBody = (originalBody || '_No description provided in the original PR._')
+    .split('\n')
+    .map((line) => `> ${line}`)
+    .join('\n');
+
+  return `
+This PR cherry-picks changes from the original PR #${originalPRNumber} to branch ${targetBranch}.
+
+---
+
+${quotedBody}
+`.trim();
 }
 
 async function cherryPickCommits(){
@@ -140,7 +157,7 @@ async function cherryPickCommits(){
     }
     await exec(`git push origin HEAD:${branchName}`);
     
-    await createPR(arrTitle[i], branchName, arrBranch[i]);
+    await createPR(arrTitle[i], branchName, arrBranch[i], buildCherryPickBody(arrPR[i], arrBody[i], arrBranch[i]));
     await exec(`git checkout main`);
     await exec(`git branch -D ${branchName}`);
     await labelCommit(arrURL[i], `cherry-picked-${arrBranch[i]}`);
@@ -171,11 +188,11 @@ async function postComment(url, userName, mergedBy, branch, message){
   await axios.post(issueURL, {"body":`Hi ${userName} and ${mergedBy}, when i performed cherry-pick to this commit to ${branch}, i have encountered the following issue. Can you take a look and pick it manually?\n Error Message:\n ${message}`}, options);
 }
 
-async function createPR(title, head, base){
-  const payload = {title, head, base};
+async function createPR(title, head, base, body){
+  const payload = {title, head, base, body};
   
   return new Promise(resolve => {
-    const content = JSON.stringify({ title, head, base }, null, 1)
+    const content = JSON.stringify({ title, head, base, body }, null, 1)
     const req = https.request({
       method: 'POST',
       hostname: 'api.github.com',
@@ -184,22 +201,27 @@ async function createPR(title, head, base){
         'Authorization': `token ${token}`,
         'User-Agent': 'Vaadin Cherry Pick',
         'Content-Type': 'application/json',
-        'Content-Length': content.length,
+        'Content-Length': Buffer.byteLength(content),
       },
       body: content
     }, res => {
-      let body = "";
+      let responseBody = "";
       res.on("data", data => {
-        body += data;
+        responseBody += data;
       });
       res.on("end", () => {
-        resolve(body);
+        resolve({ status: res.statusCode, body: responseBody });
       });
     });
     req.write(content)
-  }).then(body => {
+    req.end();
+  }).then(({ status, body }) => {
+    if (status >= 300) {
+      console.error(`Failed to create PR '${title}' (HTTP ${status}): ${body}`);
+      return;
+    }
     const resp = JSON.parse(body);
-    console.log(`Created PR '${title}' ${resp.url}`);
+    console.log(`Created PR '${title}' ${resp.html_url || resp.url}`);
   });
 }
 

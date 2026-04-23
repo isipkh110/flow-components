@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -64,17 +64,18 @@ public class PreserveOnRefreshIT extends AbstractComponentIT {
     public void refresh_editorOpen() {
         findElement(By.id("edit-button")).click();
         getDriver().navigate().refresh();
+        waitForElementPresent(By.id("closed"));
         WebElement closed = findElement(By.id("closed"));
-        Assert.assertEquals(closed.getText(), "Closed");
+        Assert.assertEquals("Closed", closed.getText());
 
         // Test that editor still works after refresh
         findElement(By.id("edit-button")).click();
         WebElement open = findElement(By.id("open-2"));
-        Assert.assertEquals(open.getText(), "Open: 2");
+        Assert.assertEquals("Open: 2", open.getText());
     }
 
     private GridElement getGrid() {
-        return $(GridElement.class).first();
+        return $(GridElement.class).waitForFirst();
     }
 
 }

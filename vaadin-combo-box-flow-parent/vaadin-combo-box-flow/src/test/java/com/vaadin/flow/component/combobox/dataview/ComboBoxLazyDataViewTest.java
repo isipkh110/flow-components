@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,15 +19,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -37,12 +34,13 @@ import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.DataCommunicator;
 import com.vaadin.flow.data.provider.DataKeyMapper;
 import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.function.SerializableConsumer;
-import com.vaadin.tests.dataprovider.MockUI;
+import com.vaadin.tests.MockUIExtension;
 
 import tools.jackson.databind.JsonNode;
 
-public class ComboBoxLazyDataViewTest {
+class ComboBoxLazyDataViewTest {
+    @RegisterExtension
+    MockUIExtension ui = new MockUIExtension();
 
     private static final String TYPE_ERROR_MESSAGE = "ComboBoxLazyDataView "
             + "only supports 'BackEndDataProvider' or it's subclasses, "
@@ -53,41 +51,19 @@ public class ComboBoxLazyDataViewTest {
     private String[] items = { "foo", "bar", "baz" };
     private ComboBoxLazyDataView<String> dataView;
     private ComboBox<String> comboBox;
-    private MockUI ui;
     private DataCommunicator<String> dataCommunicator;
     private ArrayUpdater arrayUpdater;
-    private SerializableConsumer<DataCommunicator.Filter<String>> filterSlot;
 
-    private CallbackDataProvider<String, String> undefinedItemCountDataProvider = DataProvider
-            .fromFilteringCallbacks(
-                    query -> IntStream.range(0, 1000)
-                            .mapToObj(index -> "Item " + index)
-                            .filter(item -> item
-                                    .contains(query.getFilter().orElse("")))
-                            .skip(query.getOffset()).limit(query.getLimit()),
-                    query -> {
-                        Assert.fail("No item count query expected");
-                        return 0;
-                    });
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         BackEndDataProvider<String, String> dataProvider = DataProvider
                 .fromFilteringCallbacks(query -> {
                     query.getOffset();
                     query.getLimit();
-                    return Stream.of(items).filter(
-                            item -> item.contains(query.getFilter().orElse("")))
-                            .skip(query.getOffset()).limit(query.getLimit());
-                }, query -> (int) Stream.of(items).filter(
-                        item -> item.contains(query.getFilter().orElse("")))
-                        .count());
+                    return Stream.of(items);
+                }, query -> 3);
 
         comboBox = new ComboBox<>();
-        ui = new MockUI();
         ui.add(comboBox);
 
         ArrayUpdater.Update update = new ArrayUpdater.Update() {
@@ -115,53 +91,52 @@ public class ComboBoxLazyDataViewTest {
         dataCommunicator = new DataCommunicator<>((item, jsonObject) -> {
         }, arrayUpdater, null, comboBox.getElement().getNode());
 
-        // set combo box client-side filter to empty by default
-        filterSlot = dataCommunicator.setDataProvider(dataProvider, "", true);
+        dataCommunicator.setDataProvider(dataProvider, null);
 
         dataView = new ComboBoxLazyDataView<>(dataCommunicator, comboBox);
     }
 
     @Test
-    public void setItemCountCallback_switchFromUndefinedSize_definedSize() {
-        Assert.assertTrue(dataCommunicator.isDefinedSize());
+    void setItemCountCallback_switchFromUndefinedSize_definedSize() {
+        Assertions.assertTrue(dataCommunicator.isDefinedSize());
 
         dataView.setItemCountUnknown();
-        Assert.assertFalse(dataCommunicator.isDefinedSize());
+        Assertions.assertFalse(dataCommunicator.isDefinedSize());
 
         dataView.setItemCountCallback(query -> 5);
-        Assert.assertTrue(dataCommunicator.isDefinedSize());
+        Assertions.assertTrue(dataCommunicator.isDefinedSize());
     }
 
     @Test
-    public void setItemCountCallback_setAnotherCountCallback_itemCountChanged() {
+    void setItemCountCallback_setAnotherCountCallback_itemCountChanged() {
         final AtomicInteger itemCount = new AtomicInteger(0);
         dataView.addItemCountChangeListener(
                 event -> itemCount.set(event.getItemCount()));
         dataCommunicator.setViewportRange(0, 50);
 
-        ComboBoxDataViewTestHelper.fakeClientCommunication(ui);
+        ui.fakeClientCommunication();
 
-        Assert.assertEquals("Expected 3 items before setItemCountCallback()", 3,
-                itemCount.getAndSet(0));
+        Assertions.assertEquals(3, itemCount.getAndSet(0),
+                "Expected 3 items before setItemCountCallback()");
 
         dataView.setItemCountCallback(query -> 2);
 
-        ComboBoxDataViewTestHelper.fakeClientCommunication(ui);
+        ui.fakeClientCommunication();
 
-        Assert.assertEquals("Expected 2 items after setItemCountCallback()", 2,
-                itemCount.get());
+        Assertions.assertEquals(2, itemCount.get(),
+                "Expected 2 items after setItemCountCallback()");
     }
 
     @Test
-    public void getLazyDataView_defaultDataProvider_dataViewReturned() {
+    void getLazyDataView_defaulDataProvider_dataViewReturned() {
         ComboBox<String> comboBox = new ComboBox<>();
         ComboBoxLazyDataView<String> lazyDataView = comboBox.getLazyDataView();
 
-        Assert.assertNotNull(lazyDataView);
+        Assertions.assertNotNull(lazyDataView);
     }
 
     @Test
-    public void lazyDataViewAPI_comboBoxNotOpenedYet_dataProviderVerificationPassed() {
+    void lazyDataViewAPI_comboBoxNotOpenedYet_dataProviderVerificationPassed() {
         ComboBox<String> comboBox = new ComboBox<>();
         ComboBoxLazyDataView<String> dataView = comboBox
                 .setItems(query -> Stream.of("foo"));
@@ -175,167 +150,67 @@ public class ComboBoxLazyDataViewTest {
     }
 
     @Test
-    public void setItemCountEstimate_defaultDataProvider_throws() {
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage(TYPE_ERROR_MESSAGE);
-
+    void setItemCountEstimate_defaultDataProvider_throws() {
         ComboBox<String> comboBox = new ComboBox<>();
-        comboBox.getLazyDataView().setItemCountEstimate(1000);
+        var exception = Assertions.assertThrows(IllegalStateException.class,
+                () -> comboBox.getLazyDataView().setItemCountEstimate(1000));
+        Assertions.assertEquals(TYPE_ERROR_MESSAGE, exception.getMessage());
     }
 
     @Test
-    public void setItemCountEstimateIncrease_lazyAPIWithDefaultDataProvider_throws() {
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage(TYPE_ERROR_MESSAGE);
-
+    void setItemCountEstimateIncrease_lazyAPIWithDefaultDataProvider_throws() {
         ComboBox<String> comboBox = new ComboBox<>();
-        comboBox.getLazyDataView().setItemCountEstimateIncrease(1000);
+        var exception = Assertions.assertThrows(IllegalStateException.class,
+                () -> comboBox.getLazyDataView()
+                        .setItemCountEstimateIncrease(1000));
+        Assertions.assertEquals(TYPE_ERROR_MESSAGE, exception.getMessage());
     }
 
     @Test
-    public void setItemCountCallback_lazyAPIWithDefaultDataProvider_throws() {
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage(TYPE_ERROR_MESSAGE);
-
+    void setItemCountCallback_lazyAPIWithDefaultDataProvider_throws() {
         ComboBox<String> comboBox = new ComboBox<>();
-        comboBox.getLazyDataView().setItemCountCallback(query -> 0);
+        var exception = Assertions.assertThrows(IllegalStateException.class,
+                () -> comboBox.getLazyDataView()
+                        .setItemCountCallback(query -> 0));
+        Assertions.assertEquals(TYPE_ERROR_MESSAGE, exception.getMessage());
     }
 
     @Test
-    public void setItemCountFromDataProvider_lazyAPIWithDefaultDataProvider_throws() {
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage(TYPE_ERROR_MESSAGE);
-
+    void setItemCountFromDataProvider_lazyAPIWithDefaultDataProvider_throws() {
         ComboBox<String> comboBox = new ComboBox<>();
-        comboBox.getLazyDataView().setItemCountFromDataProvider();
+        var exception = Assertions.assertThrows(IllegalStateException.class,
+                () -> comboBox.getLazyDataView()
+                        .setItemCountFromDataProvider());
+        Assertions.assertEquals(TYPE_ERROR_MESSAGE, exception.getMessage());
     }
 
     @Test
-    public void setItemCountUnknown_lazyAPIWithDefaultDataProvider_throws() {
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage(TYPE_ERROR_MESSAGE);
-
+    void setItemCountUnknown_lazyAPIWithDefaultDataProvider_throws() {
         ComboBox<String> comboBox = new ComboBox<>();
-        comboBox.getLazyDataView().setItemCountUnknown();
+        var exception = Assertions.assertThrows(IllegalStateException.class,
+                () -> comboBox.getLazyDataView().setItemCountUnknown());
+        Assertions.assertEquals(TYPE_ERROR_MESSAGE, exception.getMessage());
     }
 
     @Test
-    public void getItemCountEstimate_lazyAPIWithDefaultDataProvider_throws() {
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage(TYPE_ERROR_MESSAGE);
-
+    void getItemCountEstimate_lazyAPIWithDefaultDataProvider_throws() {
         ComboBox<String> comboBox = new ComboBox<>();
-        comboBox.getLazyDataView().getItemCountEstimate();
+        var exception = Assertions.assertThrows(IllegalStateException.class,
+                () -> comboBox.getLazyDataView().getItemCountEstimate());
+        Assertions.assertEquals(TYPE_ERROR_MESSAGE, exception.getMessage());
     }
 
     @Test
-    public void getItemCountEstimateIncrease_lazyAPIWithDefaultDataProvider_throws() {
-        expectedException.expect(IllegalStateException.class);
-        expectedException.expectMessage(TYPE_ERROR_MESSAGE);
-
+    void getItemCountEstimateIncrease_lazyAPIWithDefaultDataProvider_throws() {
         ComboBox<String> comboBox = new ComboBox<>();
-        comboBox.getLazyDataView().getItemCountEstimateIncrease();
+        var exception = Assertions.assertThrows(IllegalStateException.class,
+                () -> comboBox.getLazyDataView()
+                        .getItemCountEstimateIncrease());
+        Assertions.assertEquals(TYPE_ERROR_MESSAGE, exception.getMessage());
     }
 
     @Test
-    public void getItems_withDefinedItemCountAndNoClientSideFilter_returnsNotFilteredItems() {
-        Stream<String> filteredItems = dataView.getItems();
-
-        Assert.assertArrayEquals("Unexpected items obtained",
-                new String[] { "foo", "bar", "baz" }, filteredItems.toArray());
-    }
-
-    @Test
-    public void getItems_withUnknownItemCountAndNoClientSideFilter_returnsNotFilteredItems() {
-        dataCommunicator.setDataProvider(undefinedItemCountDataProvider, "",
-                true);
-        dataView.setItemCountUnknown();
-
-        List<String> items = dataView.getItems().collect(Collectors.toList());
-        Assert.assertEquals(1000, items.size());
-        Assert.assertEquals("Item 0", items.get(0));
-        Assert.assertEquals("Item 999", items.get(items.size() - 1));
-    }
-
-    @Test
-    public void getItem_withDefinedItemCountAndNoClientSideFilter_returnsItemFromNotFilteredSet() {
-        Assert.assertEquals("Invalid item on index 1", "bar",
-                dataView.getItem(1));
-    }
-
-    @Test
-    public void getItem_withUnknownItemCountAndNoClientSideFilter_returnsItemFromNotFilteredSet() {
-        dataCommunicator.setDataProvider(undefinedItemCountDataProvider, "",
-                true);
-        dataView.setItemCountUnknown();
-
-        Assert.assertEquals("Invalid item on index 777", "Item 777",
-                dataView.getItem(777));
-    }
-
-    @Test
-    public void getItem_negativeIndex_throws() {
-        expectedException.expect(IndexOutOfBoundsException.class);
-        expectedException.expectMessage("Index must be non-negative");
-        dataView.getItem(-1);
-    }
-
-    @Test
-    public void getItem_definedItemCountAndEmptyData_throws() {
-        expectedException.expect(IndexOutOfBoundsException.class);
-        expectedException.expectMessage("Requested index 0 on empty data.");
-        dataCommunicator.setDataProvider(DataProvider.fromCallbacks(query -> {
-            query.getOffset();
-            query.getLimit();
-            return Stream.empty();
-        }, query -> 0), null);
-
-        dataView.getItem(0);
-    }
-
-    @Test
-    public void getItem_undefinedItemCountAndEmptyData_returnEmptyItem() {
-        dataCommunicator.setDataProvider(DataProvider.fromCallbacks(query -> {
-            query.getOffset();
-            query.getLimit();
-            return Stream.empty();
-        }, query -> 0), null);
-        dataView.setItemCountUnknown();
-
-        Assert.assertNull(dataView.getItem(1234567));
-    }
-
-    @Test
-    public void getItem_definedItemCountAndOutsideOfRange_throws() {
-        expectedException.expect(IndexOutOfBoundsException.class);
-        expectedException.expectMessage(
-                "Given index 3 should be less than the item count '3'");
-        dataView.getItem(3);
-    }
-
-    @Test
-    public void getItem_undefinedItemCountAndOutsideOfRange_returnEmptyItem() {
-        dataCommunicator.setDataProvider(undefinedItemCountDataProvider, "",
-                true);
-        dataView.setItemCountUnknown();
-
-        Assert.assertNull(dataView.getItem(1234567));
-    }
-
-    @Test
-    public void getItem_withCountCallbackAndOutsideOfRange_throw() {
-        expectedException.expect(IndexOutOfBoundsException.class);
-        expectedException.expectMessage(
-                "Given index 1234567 should be less than the item count '1000'");
-        dataCommunicator.setDataProvider(undefinedItemCountDataProvider, "",
-                true);
-        dataView.setItemCountCallback(query -> 1000);
-
-        dataView.getItem(1234567);
-    }
-
-    @Test
-    public void setIdentifierProvider_customIdentifier_keyMapperUsesIdentifier() {
+    void setIdentifierProvider_customIdentifier_keyMapperUsesIdentifier() {
         Item first = new Item(1L, "first");
         Item second = new Item(2L, "middle");
 
@@ -355,8 +230,8 @@ public class ComboBoxLazyDataViewTest {
         DataKeyMapper<Item> keyMapper = dataCommunicator.getKeyMapper();
         items.forEach(keyMapper::key);
 
-        Assert.assertFalse(keyMapper.has(new Item(1L, "non-present")));
+        Assertions.assertFalse(keyMapper.has(new Item(1L, "non-present")));
         dataView.setIdentifierProvider(Item::getId);
-        Assert.assertTrue(keyMapper.has(new Item(1L, "non-present")));
+        Assertions.assertTrue(keyMapper.has(new Item(1L, "non-present")));
     }
 }

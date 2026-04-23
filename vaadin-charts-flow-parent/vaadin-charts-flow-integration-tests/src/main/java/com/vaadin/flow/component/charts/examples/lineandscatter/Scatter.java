@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -22,8 +22,10 @@ import com.vaadin.flow.component.charts.model.SeriesTooltip;
 import com.vaadin.flow.component.charts.model.VerticalAlign;
 import com.vaadin.flow.component.charts.model.XAxis;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.router.Route;
 
 @CssImport(value = "./styles/Scatter.css", themeFor = "vaadin-chart")
+@Route("vaadin-charts/lineandscatter/scatter")
 public class Scatter extends AbstractChartExample {
     @Override
     public void initDemo() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,22 +20,25 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.data.provider.AbstractListDataView;
 import com.vaadin.flow.data.provider.HasListDataView;
 import com.vaadin.flow.function.SerializablePredicate;
+import com.vaadin.tests.MockUIExtension;
 
 // Originally from com.vaadin.flow.data.provider.AbstractListDataViewListenerTest
 // If this breaks, check there for updates
 
 public abstract class AbstractListDataViewListenerTest {
+    @RegisterExtension
+    protected MockUIExtension ui = new MockUIExtension();
 
     @Test
-    public void addItemCountChangeListener_itemsCountChanged_listenersAreNotified() {
+    void addItemCountChangeListener_itemsCountChanged_listenersAreNotified() {
         String[] items = new String[] { "item1", "item2", "item3", "item4" };
         HasListDataView<String, ? extends AbstractListDataView<String>> component = getVerifiedComponent();
         AbstractListDataView<String> dataView = component
@@ -46,7 +49,6 @@ public abstract class AbstractListDataViewListenerTest {
         dataView.addItemCountChangeListener(
                 event -> invocationCounter.incrementAndGet());
 
-        UI ui = new MockUI();
         ui.add((Component) component);
 
         dataView.setFilter("one"::equals);
@@ -56,27 +58,25 @@ public abstract class AbstractListDataViewListenerTest {
         dataView.addItem("last");
         dataView.removeItem("item0");
 
-        fakeClientCall(ui);
+        ui.fakeClientCommunication();
 
-        Assert.assertEquals(
+        Assertions.assertEquals(1, invocationCounter.get(),
                 "Unexpected number of item count change listener invocations "
-                        + "occurred",
-                1, invocationCounter.get());
+                        + "occurred");
     }
 
     @Test
-    public void addItemCountChangeListener_itemsCountNotChanged_listenersAreNotNotified() {
+    void addItemCountChangeListener_itemsCountNotChanged_listenersAreNotNotified() {
         String[] items = new String[] { "item1", "item2", "item3", "item4" };
         HasListDataView<String, ? extends AbstractListDataView<String>> component = getVerifiedComponent();
         AbstractListDataView<String> dataView = component.setItems(items);
 
         AtomicBoolean invocationChecker = new AtomicBoolean(false);
 
-        UI ui = new MockUI();
         ui.add((Component) component);
 
         // Make initial item count change
-        fakeClientCall(ui);
+        ui.fakeClientCommunication();
 
         dataView.addItemCountChangeListener(
                 event -> invocationChecker.getAndSet(true));
@@ -85,30 +85,29 @@ public abstract class AbstractListDataViewListenerTest {
 
         // Make item count change after sort. No event should be sent as item
         // count stays the same.
-        fakeClientCall(ui);
+        ui.fakeClientCommunication();
 
-        Assert.assertFalse("Unexpected item count listener invocation",
-                invocationChecker.get());
+        Assertions.assertFalse(invocationChecker.get(),
+                "Unexpected item count listener invocation");
     }
 
     @Test
-    public void addItemCountChangeListener_itemsCountChanged_newItemCountSuppliedInEvent() {
+    void addItemCountChangeListener_itemsCountChanged_newItemCountSuppliedInEvent() {
         String[] items = new String[] { "item1", "item2", "item3", "item4" };
         HasListDataView<String, ? extends AbstractListDataView<String>> component = getVerifiedComponent();
         AbstractListDataView<String> dataView = component.setItems(items);
 
         AtomicBoolean invocationChecker = new AtomicBoolean(false);
 
-        UI ui = new MockUI();
         ui.add((Component) component);
 
         // Make initial item count event
-        fakeClientCall(ui);
+        ui.fakeClientCommunication();
 
         dataView.addItemCountChangeListener(event -> {
-            Assert.assertEquals("Unexpected item count", 1,
-                    event.getItemCount());
-            Assert.assertFalse(event.isItemCountEstimated());
+            Assertions.assertEquals(1, event.getItemCount(),
+                    "Unexpected item count");
+            Assertions.assertFalse(event.isItemCountEstimated());
             invocationChecker.set(true);
         });
 
@@ -116,14 +115,14 @@ public abstract class AbstractListDataViewListenerTest {
 
         // Item count change should be sent as item count has changed after
         // filtering.
-        fakeClientCall(ui);
+        ui.fakeClientCommunication();
 
-        Assert.assertTrue("Item count change never called",
-                invocationChecker.get());
+        Assertions.assertTrue(invocationChecker.get(),
+                "Item count change never called");
     }
 
     @Test
-    public void setItems_setNewItemsToComponent_filteringAndSortingRemoved() {
+    void setItems_setNewItemsToComponent_filteringAndSortingRemoved() {
         HasListDataView<String, ? extends AbstractListDataView<String>> component = getVerifiedComponent();
 
         AbstractListDataView<String> listDataView = component.setItems("item1",
@@ -133,22 +132,16 @@ public abstract class AbstractListDataViewListenerTest {
 
         listDataView.setFilter(filter);
 
-        Assert.assertEquals("Unexpected filtered item count", 1,
-                listDataView.getItemCount());
+        Assertions.assertEquals(1, listDataView.getItemCount(),
+                "Unexpected filtered item count");
 
         listDataView = component.setItems("item1", "item2", "item3");
 
-        Assert.assertEquals("Non-filtered item count expected", 3,
-                listDataView.getItemCount());
+        Assertions.assertEquals(3, listDataView.getItemCount(),
+                "Non-filtered item count expected");
     }
 
     protected abstract HasListDataView<String, ? extends AbstractListDataView<String>> getComponent();
-
-    private void fakeClientCall(UI ui) {
-        ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
-        ui.getInternals().getStateTree().collectChanges(ignore -> {
-        });
-    }
 
     private HasListDataView<String, ? extends AbstractListDataView<String>> getVerifiedComponent() {
         HasListDataView<String, ? extends AbstractListDataView<String>> component = getComponent();

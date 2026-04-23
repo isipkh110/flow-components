@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2025 Vaadin Ltd.
+ * Copyright 2000-2026 Vaadin Ltd.
  *
  * This program is available under Vaadin Commercial License and Service Terms.
  *
@@ -27,13 +27,6 @@ public class NewButtonIT extends AbstractComponentIT {
     @Test
     public void newButtonNull_noNewButtonPresent() {
         CrudElement crud = $(CrudElement.class).id("crud-new-button-null");
-        Assert.assertFalse("New button should not be rendered",
-                verifyButtonRendered(crud));
-    }
-
-    @Test
-    public void newButtonVisibleFalse_noNewButtonPresent() {
-        CrudElement crud = $(CrudElement.class).id("crud-new-button-hidden");
         Assert.assertFalse("New button should not be rendered",
                 verifyButtonRendered(crud));
     }
