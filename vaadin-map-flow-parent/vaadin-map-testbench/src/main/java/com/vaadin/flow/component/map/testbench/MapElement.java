@@ -311,6 +311,14 @@ public class MapElement extends TestBenchElement {
             executor.executeScript(path("setZoom(%s)", zoom));
         }
 
+        public float getMinZoom() {
+            return getFloat("getMinZoom()");
+        }
+
+        public float getMaxZoom() {
+            return getFloat("getMaxZoom()");
+        }
+
         public float getRotation() {
             return getFloat("getRotation()");
         }

@@ -113,6 +113,22 @@ class MapSerializationTest {
     }
 
     @Test
+    void viewWithZoomLimits_synchronizeView_serializesMinZoomAndMaxZoom() {
+        map.getView().setMinZoom(3.5);
+        map.getView().setMaxZoom(18.5);
+
+        ui.fakeClientCommunication();
+        ArrayNode syncedItems = getSynchronizedItems();
+
+        ObjectNode viewNode = findSyncedItem(syncedItems,
+                map.getView().getId());
+        Assertions.assertEquals(3.5, viewNode.get("minZoom").asDouble(),
+                0.0001);
+        Assertions.assertEquals(18.5, viewNode.get("maxZoom").asDouble(),
+                0.0001);
+    }
+
+    @Test
     void serializeIcon_registerStreamResourceExactlyOnce() {
         // Initial sync of a marker with an icon to register stream resource
         MarkerFeature marker = setupMarker();

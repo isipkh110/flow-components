@@ -51,4 +51,48 @@ public class ViewIT extends AbstractComponentIT {
 
         Assert.assertEquals(0.785398, view.getRotation(), 0.0001);
     }
+
+    @Test
+    public void zoomLimits_setZoomOutsideLimits_clampsZoom() {
+        MapElement map = $(MapElement.class).single();
+        MapElement.ViewReference view = map.getMapReference().getView();
+
+        TestBenchElement setZoomLimitsButton = $("button")
+                .id("set-zoom-limits-button");
+        setZoomLimitsButton.click();
+
+        TestBenchElement setZoomBelowMinimumButton = $("button")
+                .id("set-zoom-below-minimum-button");
+        setZoomBelowMinimumButton.click();
+        Assert.assertEquals(3.5, view.getZoom(), 0.0001);
+
+        TestBenchElement setZoomAboveMaximumButton = $("button")
+                .id("set-zoom-above-maximum-button");
+        setZoomAboveMaximumButton.click();
+        Assert.assertEquals(12.5, view.getZoom(), 0.0001);
+    }
+
+    @Test
+    public void zoomLimits_resetZoomLimits_allowsZoomingOutsidePreviousLimits() {
+        MapElement map = $(MapElement.class).single();
+        MapElement.ViewReference view = map.getMapReference().getView();
+
+        TestBenchElement setZoomLimitsButton = $("button")
+                .id("set-zoom-limits-button");
+        setZoomLimitsButton.click();
+
+        TestBenchElement resetZoomLimitsButton = $("button")
+                .id("reset-zoom-limits-button");
+        resetZoomLimitsButton.click();
+
+        TestBenchElement setZoomBelowMinimumButton = $("button")
+                .id("set-zoom-below-minimum-button");
+        setZoomBelowMinimumButton.click();
+        Assert.assertEquals(2, view.getZoom(), 0.0001);
+
+        TestBenchElement setZoomAboveMaximumButton = $("button")
+                .id("set-zoom-above-maximum-button");
+        setZoomAboveMaximumButton.click();
+        Assert.assertEquals(14, view.getZoom(), 0.0001);
+    }
 }

@@ -64,6 +64,8 @@ function synchronizeView(target, source, _context) {
 
   target.setCenter(source.center ? convertToCoordinateArray(source.center) : [0, 0]);
   target.setRotation(source.rotation || 0);
+  target.setMinZoom(source.minZoom ?? 0);
+  target.setMaxZoom(source.maxZoom ?? 28);
   target.setZoom(source.zoom || 0);
 
   return target;

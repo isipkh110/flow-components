@@ -23,6 +23,8 @@ public class View extends AbstractConfigurationObject {
     private Coordinate center;
     private double rotation;
     private double zoom;
+    private Double minZoom;
+    private Double maxZoom;
     private Extent extent;
     private final String projection;
 
@@ -131,6 +133,52 @@ public class View extends AbstractConfigurationObject {
      */
     public void setZoom(double zoom) {
         this.zoom = zoom;
+        markAsDirty();
+    }
+
+    /**
+     * Gets the minimum zoom level of the view.
+     *
+     * @return the minimum zoom level, or {@code null} when not defined
+     */
+    public Double getMinZoom() {
+        return minZoom;
+    }
+
+    /**
+     * Sets the minimum zoom level of the view. The zoom level is a decimal
+     * value that starts at {@code 0} as the most zoomed-out level, and then
+     * continually increases to zoom further in.
+     *
+     * @param minZoom
+     *            the new minimum zoom level, or {@code null} to use the default
+     *            of {@code 0}
+     */
+    public void setMinZoom(Double minZoom) {
+        this.minZoom = minZoom;
+        markAsDirty();
+    }
+
+    /**
+     * Gets the maximum zoom level of the view.
+     *
+     * @return the maximum zoom level, or {@code null} when not defined
+     */
+    public Double getMaxZoom() {
+        return maxZoom;
+    }
+
+    /**
+     * Sets the maximum zoom level of the view. The zoom level is a decimal
+     * value that starts at {@code 0} as the most zoomed-out level, and then
+     * continually increases to zoom further in.
+     *
+     * @param maxZoom
+     *            the new maximum zoom level, or {@code null} to use the default
+     *            of {@code 28}
+     */
+    public void setMaxZoom(Double maxZoom) {
+        this.maxZoom = maxZoom;
         markAsDirty();
     }
 

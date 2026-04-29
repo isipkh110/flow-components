@@ -36,4 +36,36 @@ class ViewTest {
 
         Assertions.assertEquals("EPSG:4326", view.getProjection());
     }
+
+    @Test
+    void defaultView_getMinZoomAndMaxZoom_returnsNull() {
+        View view = new View();
+
+        Assertions.assertNull(view.getMinZoom());
+        Assertions.assertNull(view.getMaxZoom());
+    }
+
+    @Test
+    void view_setMinZoomAndMaxZoom_updatesValues() {
+        View view = new View();
+
+        view.setMinZoom(2.5);
+        view.setMaxZoom(17.5);
+
+        Assertions.assertEquals(2.5, view.getMinZoom());
+        Assertions.assertEquals(17.5, view.getMaxZoom());
+    }
+
+    @Test
+    void view_setMinZoomAndMaxZoomToNull_returnsNull() {
+        View view = new View();
+        view.setMinZoom(2.5);
+        view.setMaxZoom(17.5);
+
+        view.setMinZoom(null);
+        view.setMaxZoom(null);
+
+        Assertions.assertNull(view.getMinZoom());
+        Assertions.assertNull(view.getMaxZoom());
+    }
 }
